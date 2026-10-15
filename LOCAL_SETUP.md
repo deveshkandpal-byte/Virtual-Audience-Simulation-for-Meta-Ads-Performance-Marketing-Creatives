@@ -101,7 +101,7 @@ Check that the home page loads and `/health` returns JSON containing `"status": 
 - **Python command not found:** install Python 3.11+ and reopen your terminal.
 - **Dependency install fails:** check your internet connection, activate the virtual environment, and retry `python -m pip install -r requirements.txt`.
 - **Browser says it cannot connect:** confirm the terminal still shows the server running and use the exact port printed in your command.
-- **Image is rejected:** upload a real JPEG, PNG, or WebP file under 8 MB. Renaming a different file to `.png` does not convert it.
+- **Image is rejected:** upload a real JPEG, PNG, or WebP file under 8 MB, or MP4/MOV/WebM video under 25 MB. Renaming a different file does not convert it. Video review samples up to eight frames from the first 30 seconds; audio and continuous motion are not analyzed.
 - **Image is not visually described:** expected in local heuristic mode without a compatible vision-enabled provider.
 - **AI provider errors:** confirm the key, base URL, model name, billing, and image-input support. The app falls back to local guidance when provider review fails.
 - **Agent cannot find its skill:** use the separate [AI-agent skill guide](AGENT_SETUP.md) and the agent product's current skill-directory documentation.
