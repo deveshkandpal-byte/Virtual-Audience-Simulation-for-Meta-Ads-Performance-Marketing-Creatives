@@ -8,7 +8,12 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 
 ## Current MVP capabilities
 
-- Campaign context: objective, audience, offer, CTA, and destination.
+- Campaign context: optional industry, objective, audience, offer, CTA, and landing-page URL.
+- Automatic industry classification using supplied campaign details and a structured strategy library.
+- Industry-specific recommendations for creative formats, messaging angles, CTA options, offer tests, funnel stage, and compliance guardrails across e-commerce, beauty, food, real estate, SaaS, education, local services, healthcare, Ayurveda/wellness, fashion, travel, B2B, finance, automotive, home, recruitment, and legal services.
+- Optional public HTTPS landing-page static-text extraction (title, metadata, headings, text excerpt) with ad-to-page keyword overlap and explicit disclosure of untested checks.
+- Automatic report enrichment with industry strategy, landing-page review, risk flags, evidence gaps, copy concept templates, and an objective-aligned test plan.
+- Reusable system prompt, logical agent role instructions, and a separate industry-strategy skill.
 - Creative review for supplied copy and JPEG, PNG, or WebP images (maximum 8 MB, validated image decoding, and a 25-megapixel pixel limit).
 - A creative-type selector covering the full format/concept taxonomy in the Master Prompt, including static images, video concepts, UGC, carousels, collection/catalog, social proof, comparison/education, promotion/conversion, storytelling, and industry-specific styles.
 - Format-specific checklists for image, video-script, carousel, catalog, testimonial/social-proof, educational/comparison, promotional, storytelling, and industry-style concepts. Checklists clearly disclose missing media or evidence.
@@ -18,6 +23,15 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 - Copy or download the report as JSON.
 - Compare 2–10 copy variants under shared campaign context using a separate readiness/completeness report (does not predict a winner).
 - Health endpoint at `/health`, automated tests, and GitHub Actions CI.
+
+## Strategy knowledge, system prompt and agent skills
+
+- [Industry strategy playbook](docs/INDUSTRY_STRATEGY_PLAYBOOK.md) — format, hook, copy, CTA, offer and funnel starting hypotheses by industry.
+- [Structured industry strategy library](app/industry_strategies.json) — used by the app for automatic industry classification and recommendations.
+- [System prompt](prompts/SYSTEM_PROMPT.md) and [logical agent roles](prompts/AGENT_ROLES.md) — the current app runs these roles as one orchestrated model call, not as separate autonomous agents.
+- [Industry-strategy skill](skills/industry-strategy/SKILL.md) and [core simulation skill](skills/virtual-audience-simulation/SKILL.md).
+
+A compatible AI provider is needed for custom AI-written copy variants and actual image interpretation. Without a key, the app returns industry-based guidance and clearly marked fill-in concept templates, not finished AI-generated creatives.
 
 ## Not implemented yet
 
