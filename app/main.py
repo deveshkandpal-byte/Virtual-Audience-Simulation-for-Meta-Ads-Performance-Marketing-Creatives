@@ -332,9 +332,10 @@ async def analyze(
         if not image_bytes:
             image_bytes = None
         else:
+            # Use bytes.fromhex for binary signatures to avoid accidental escaping bugs.
             valid_signature = (
-                (image_type == "image/jpeg" and image_bytes.startswith(b"\\xff\\xd8\\xff"))
-                or (image_type == "image/png" and image_bytes.startswith(b"\\x89PNG\\r\\n\\x1a\\n"))
+                (image_type == "image/jpeg" and image_bytes.startswith(bytes.fromhex("FFD8FF")))
+                or (image_type == "image/png" and image_bytes.startswith(bytes.fromhex("89504E470D0A1A0A")))
                 or (image_type == "image/webp" and image_bytes.startswith(b"RIFF") and image_bytes[8:12] == b"WEBP")
             )
             if not valid_signature:
