@@ -17,14 +17,11 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 
 ## Not implemented yet
 
-- Direct video upload or video-frame/audio analysis.
+- Direct video upload or video-frame/audio analysis. Script-only video/UGC checklist guidance is available, but the app does not inspect rendered video, audio, or real retention.
 - Actual virtual human participants, eye-tracking, or measured audience experiments.
 - A predictive model trained and validated on historical Meta Ads campaign data.
 - Visual asset generation or automatic image/video editing.
 - Direct publishing or export into Meta Ads Manager.
-- Image/video asset generation or editing.
-- Direct publishing or export into Meta Ads Manager.
-- A predictive model trained and validated on historical Meta Ads campaign data.
 
 These are potential future phases, not current features. The app must not describe simulated labels as actual campaign results.
 
@@ -100,7 +97,17 @@ Replace `your_key_here` with your own secret. Do not paste it into public issues
 6. Select **Generate copy fixes** for alternative copy guidance.
 7. Copy or download the structured JSON report.
 
-You can leave fields blank. Missing components should be reported as **Not provided** rather than invented. Video files are not supported in this MVP; for now, paste the video script or describe the concept in the text fields.
+You can leave fields blank. Missing components should be reported as **Not provided** rather than invented. Video files are not supported in this MVP; for now, paste the video script or describe the concept in the text fields. Video/UGC creative types receive a script-only checklist for the opening hook, pacing cues, visual directions, audio/subtitles, and closing CTA. These are editorial checks, not video measurements.
+
+### Compare variants
+
+1. Scroll to **Compare creative variants**.
+2. Enter the same campaign objective and audience for all variants.
+3. Fill in 2–10 variants with their name, hook, copy, offer, CTA, and destination.
+4. Select **Compare variants** and review the JSON summary and testing plan.
+5. Select **Download comparison JSON** to save the report.
+
+The comparison flags input completeness; it does not predict a winner or estimate live ad results.
 
 ## Run the tests
 
@@ -120,6 +127,10 @@ GitHub Actions also runs the test suite when changes are pushed to `main` or a p
 - File extensions and browser-provided MIME types are not a complete security boundary. Do not expose an unreviewed development instance publicly.
 - Use only substantiated claims, genuine testimonials, and confirmed offers in ad copy.
 
+## Open-source license
+
+This project is released under the [MIT License](LICENSE). Contributions and issue reports are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+
 ## Technology
 
 - Python 3.11
@@ -130,13 +141,11 @@ GitHub Actions also runs the test suite when changes are pushed to `main` or a p
 
 ## Roadmap
 
-1. Strengthen input validation and report-schema checks.
-2. Improve creative-type-specific analysis and add test coverage.
-3. Add multi-creative comparison and exportable comparison reports.
-4. Add supported video analysis only after choosing and testing a suitable provider.
-5. Add visual asset generation as a separate, reviewable workflow.
-6. Improve report-schema validation and provider-failure tests.
-7. Consider numerical performance estimation only after obtaining permitted historical campaign data and validating the model on held-out data.
+1. Strengthen formal response-schema validation and provider-failure tests.
+2. Add direct video upload and multimodal analysis only after choosing and testing a suitable provider.
+3. Add visual asset generation as a separate, reviewable workflow.
+4. Add deployment, rate limiting, authentication, and privacy controls before hosting a public instance.
+5. Consider numerical performance estimation only after obtaining permitted historical campaign data and validating the model on held-out data.
 
 ## Project status
 
