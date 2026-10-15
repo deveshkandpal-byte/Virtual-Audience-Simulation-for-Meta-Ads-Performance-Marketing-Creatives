@@ -165,3 +165,34 @@ def test_demo_api_has_basic_per_ip_rate_limit(monkeypatch):
     ]
     assert responses[-1].status_code == 429
     assert responses[-1].headers["retry-after"] == "60"
+
+
+
+def test_carousel_format_gets_sequence_specific_checklist():
+    from app.main import format_specific_checks
+
+    checks = format_specific_checks({"creative_type": "Carousel — Storytelling carousel"})
+    assert "First card communicates a clear reason to swipe" in checks["review_points"]
+    assert "Individual card images" in checks["missing_evidence"]
+
+
+def test_catalog_format_discloses_missing_feed_evidence():
+    from app.main import format_specific_checks
+
+    checks = format_specific_checks({"creative_type": "Collection & Catalog — Product catalog ad"})
+    assert "Catalog feed" in checks["missing_evidence"]
+    assert any("Product set" in item for item in checks["review_points"])
+
+
+def test_testimonial_format_flags_authenticity():
+    from app.main import format_specific_checks
+
+    checks = format_specific_checks({"creative_type": "Testimonial & Social Proof — Customer testimonial"})
+    assert "Do not invent customers" in checks["integrity_warning"]
+
+
+def test_static_image_does_not_claim_visual_inspection_without_provider():
+    from app.main import format_specific_checks
+
+    checks = format_specific_checks({"creative_type": "Static Image — Product hero shot"}, image_attached=True, image_inspected=False)
+    assert "not visually inspected in local mode" in checks["visual"]
