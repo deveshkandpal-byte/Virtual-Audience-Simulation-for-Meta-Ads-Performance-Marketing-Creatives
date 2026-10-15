@@ -177,8 +177,18 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
     required = {"creative_type", "components", "simulated_performance", "analysis", "recommended_modifications", "overall_assessment"}
     if not isinstance(report, dict) or not required.issubset(report):
         raise RuntimeError("AI provider returned a report that does not match the required structure.")
+    if not isinstance(report.get("components"), dict):
+        raise RuntimeError("AI provider returned an invalid components object.")
+    if not isinstance(report.get("simulated_performance"), dict):
+        raise RuntimeError("AI provider returned an invalid simulated_performance object.")
+    if not isinstance(report.get("analysis"), dict):
+        raise RuntimeError("AI provider returned an invalid analysis object.")
+    if not isinstance(report["analysis"].get("strengths"), list) or not isinstance(report["analysis"].get("weaknesses"), list):
+        raise RuntimeError("AI provider returned invalid strengths or weaknesses lists.")
+    if not isinstance(report.get("recommended_modifications"), list):
+        raise RuntimeError("AI provider returned invalid recommended_modifications.")
     for key in ("heading", "ad_copy", "offer", "cta"):
-        report.setdefault("components", {}).setdefault(key, user_payload.get(key, "Not provided"))
+        report["components"].setdefault(key, user_payload.get(key, "Not provided"))
     report["simulation_notice"] = "AI-generated simulated assessment only. These are hypotheses, not actual Meta Ads results or validated performance predictions."
     report["visual_review_notice"] = "Image submitted to the configured AI provider for visual review." if image_bytes else "No image was supplied."
     report.setdefault("context", {
@@ -226,6 +236,14 @@ async def analyze(
             raise HTTPException(status_code=413, detail="Image is larger than the 8 MB limit.")
         if not image_bytes:
             image_bytes = None
+        else:
+            valid_signature = (
+                (image_type == "image/jpeg" and image_bytes.startswith(b"\\xff\\xd8\\xff"))
+                or (image_type == "image/png" and image_bytes.startswith(b"\\x89PNG\\r\\n\\x1a\\n"))
+                or (image_type == "image/webp" and image_bytes.startswith(b"RIFF") and image_bytes[8:12] == b"WEBP")
+            )
+            if not valid_signature:
+                raise HTTPException(status_code=415, detail="The file contents do not match the selected image type. Please upload a valid JPEG, PNG, or WebP image.")
 
     try:
         if os.getenv("OPENAI_API_KEY", "").strip():
