@@ -1,4 +1,6 @@
 import base64
+import io
+import warnings
 import json
 import os
 import re
@@ -9,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
+from PIL import Image, UnidentifiedImageError
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
@@ -17,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 
 ROOT = Path(__file__).resolve().parent
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
+MAX_IMAGE_PIXELS = 25_000_000
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 app = FastAPI(
@@ -340,6 +344,22 @@ async def analyze(
             )
             if not valid_signature:
                 raise HTTPException(status_code=415, detail="The file contents do not match the selected image type. Please upload a valid JPEG, PNG, or WebP image.")
+
+            # Verify the image can actually be decoded; a matching header alone is insufficient.
+            expected_format = {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}[image_type]
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("error", Image.DecompressionBombWarning)
+                    with Image.open(io.BytesIO(image_bytes)) as image:
+                        if image.format != expected_format:
+                            raise HTTPException(status_code=415, detail="The image encoding does not match the declared file type.")
+                        if image.width * image.height > MAX_IMAGE_PIXELS:
+                            raise HTTPException(status_code=413, detail="Image dimensions exceed the 25-megapixel safety limit.")
+                        image.verify()
+            except HTTPException:
+                raise
+            except (UnidentifiedImageError, OSError, Image.DecompressionBombError, Image.DecompressionBombWarning, ValueError) as exc:
+                raise HTTPException(status_code=415, detail="The uploaded file is not a valid, safely decodable image.") from exc
 
     try:
         if os.getenv("OPENAI_API_KEY", "").strip():
