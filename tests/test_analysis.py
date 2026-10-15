@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 from app.main import app, heuristic_report
+from app.strategy_engine import build_strategy_context, detect_industry, fetch_landing_page, load_strategy_library
 
 client = TestClient(app)
 
@@ -259,3 +260,46 @@ def test_image_upload_size_limit_is_enforced():
         files={"creative_file": ("large.png", b"x" * (8 * 1024 * 1024 + 1), "image/png")},
     )
     assert response.status_code == 413
+
+
+def test_analysis_returns_industry_strategy_and_automated_plan(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    response = client.post(
+        "/api/analyze",
+        data={
+            "industry": "Food delivery / restaurant",
+            "creative_type": "Industry-specific — Food close-ups, food preparation, texture shots, and ASMR",
+            "heading": "Fresh meals for lunch",
+            "ad_copy": "Order our menu for your lunch break.",
+            "offer": "Menu pricing as listed on page",
+            "cta": "Order Now",
+            "objective": "Sales",
+            "destination": "",
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["industry_strategy"]["key"] == "food_beverage"
+    assert body["industry_strategy_recommendations"]["recommended_formats"]
+    assert body["landing_page_review"]["status"] == "not_fetched"
+    assert body["creative_variants"]
+    assert body["test_plan"]
+    assert body["risk_flags"]
+
+
+def test_industry_detection_uses_explicit_industry():
+    library = load_strategy_library()
+    result = detect_industry({"industry": "Real estate", "ad_copy": ""}, {}, library)
+    assert result["key"] == "real_estate"
+    assert result["confidence"] in {"low", "medium", "high"}
+
+
+def test_landing_page_fetch_rejects_http_and_local_urls():
+    assert fetch_landing_page("http://127.0.0.1:8000")["status"] == "not_fetched"
+    assert fetch_landing_page("https://localhost/admin")["status"] == "not_fetched"
+
+
+def test_general_industry_fallback_when_evidence_is_missing():
+    result = build_strategy_context({"creative_type": "Static Image", "heading": "", "ad_copy": "", "offer": "", "cta": "", "destination": ""})
+    assert result["industry_strategy"]["key"] == "other"
+    assert result["landing_page_review"]["status"] == "not_fetched"
