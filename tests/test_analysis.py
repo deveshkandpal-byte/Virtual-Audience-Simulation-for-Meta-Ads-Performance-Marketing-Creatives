@@ -152,3 +152,16 @@ def test_video_script_review_is_labeled_as_script_only():
     assert "actual viewer retention is not measured" in report["video_script_checks"]["first_3_seconds"]
     assert report["video_script_checks"]["closing_cta"] == "Learn More"
     assert len(report["video_script_checks"]["recommended_checks"]) >= 3
+
+
+
+def test_demo_api_has_basic_per_ip_rate_limit(monkeypatch):
+    from app import main
+
+    monkeypatch.setattr(main, "_request_times", {})
+    responses = [
+        client.post("/api/compare", json={"creatives": [{"name": "A"}, {"name": "B"}]})
+        for _ in range(main._RATE_LIMIT_PER_MINUTE + 1)
+    ]
+    assert responses[-1].status_code == 429
+    assert responses[-1].headers["retry-after"] == "60"
