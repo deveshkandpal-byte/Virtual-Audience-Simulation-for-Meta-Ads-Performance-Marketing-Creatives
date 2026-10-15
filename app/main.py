@@ -7,6 +7,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, Field
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -348,3 +350,94 @@ async def optimize(
         fallback = heuristic_optimization(data)
         fallback["provider_note"] = f"AI copy optimization was unavailable; local guidance was returned. Details: {exc}"
         return fallback
+
+
+class ComparisonCreative(BaseModel):
+    name: str = Field(default="Untitled creative", max_length=120)
+    creative_type: str = Field(default="Static Image", max_length=300)
+    heading: str = Field(default="", max_length=1000)
+    ad_copy: str = Field(default="", max_length=12000)
+    offer: str = Field(default="", max_length=3000)
+    cta: str = Field(default="", max_length=1000)
+    destination: str = Field(default="", max_length=2000)
+
+
+class ComparisonRequest(BaseModel):
+    objective: str = Field(default="Sales", max_length=300)
+    audience: str = Field(default="", max_length=2000)
+    creatives: list[ComparisonCreative] = Field(min_length=2, max_length=10)
+
+
+@app.post("/api/compare")
+def compare_creatives(request: ComparisonRequest) -> dict[str, Any]:
+    """Compare 2–10 copy-only variants using consistent context and transparent heuristic criteria."""
+    reports: list[dict[str, Any]] = []
+    for index, creative in enumerate(request.creatives, start=1):
+        data = {
+            "creative_type": creative.creative_type,
+            "heading": creative.heading,
+            "ad_copy": creative.ad_copy,
+            "offer": creative.offer,
+            "cta": creative.cta,
+            "objective": request.objective,
+            "audience": request.audience,
+            "destination": creative.destination,
+        }
+        report = heuristic_report(data, image_attached=False)
+        provided = sum(bool(value.strip()) for value in (
+            creative.heading, creative.ad_copy, creative.offer, creative.cta, creative.destination
+        ))
+        reports.append({
+            "creative_id": index,
+            "name": creative.name,
+            "report": report,
+            "review_completeness": f"{provided}/5 key components provided",
+            "comparison_note": (
+                "More key components are available to review; this is not evidence of higher ad performance."
+                if provided >= 4 else
+                "Several key components are missing, so the comparison is less complete."
+            ),
+        })
+
+    completeness = [
+        sum(bool(value.strip()) for value in (
+            creative.heading, creative.ad_copy, creative.offer, creative.cta, creative.destination
+        ))
+        for creative in request.creatives
+    ]
+    max_completeness = max(completeness)
+    most_complete = [
+        request.creatives[i].name for i, score in enumerate(completeness) if score == max_completeness
+    ]
+    comparison_points = []
+    for i, creative in enumerate(request.creatives):
+        comparison_points.append({
+            "creative": creative.name,
+            "provided_components": completeness[i],
+            "headline_present": bool(creative.heading.strip()),
+            "copy_present": bool(creative.ad_copy.strip()),
+            "offer_present": bool(creative.offer.strip()),
+            "cta_present": bool(creative.cta.strip()),
+            "destination_present": bool(creative.destination.strip()),
+        })
+    return {
+        "campaign_context": {"objective": request.objective, "target_audience": request.audience or "Not provided"},
+        "creative_count": len(reports),
+        "individual_reports": reports,
+        "comparative_summary": {
+            "component_completeness": comparison_points,
+            "most_complete_inputs": most_complete,
+            "interpretation": "Input completeness is a documentation/readiness check only. It does not predict engagement, CTR, conversion rate, or ROAS and does not identify a performance winner.",
+            "differences_to_review": [
+                "Compare the hook and core message while keeping campaign objective and target audience consistent.",
+                "Verify that each offer is real and that each CTA matches its actual destination.",
+                "Test one meaningful creative variable at a time where practical; document spend, audience, placement, and measurement window for any live test.",
+            ],
+        },
+        "testing_plan": [
+            {"priority": "Critical", "action": "Fill missing headline, copy, offer, CTA, or destination details before judging the affected creative."},
+            {"priority": "High Impact", "action": "Check that every variant makes a clear, substantiated promise and has a matching next step."},
+            {"priority": "Testing Opportunity", "action": "Run a controlled live experiment with comparable conditions; use actual campaign results to select a winner."},
+        ],
+        "disclaimer": "This comparison uses local rule-based checks, not a real audience panel or a validated predictive model. No variant is declared the performance winner. No live Meta Ads data is accessed.",
+    }
