@@ -10,7 +10,7 @@ This guide is for non-developers. The application and the reusable agent skill a
 4. Run these commands one at a time:
 
 ```bat
-py -3.11 -m venv .venv
+py -3 -m venv .venv
 .venv\Scripts\activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -21,7 +21,7 @@ uvicorn app.main:app --reload
 6. Health check: http://127.0.0.1:8000/health. API documentation: http://127.0.0.1:8000/docs.
 7. To stop the app, return to the terminal and press Ctrl+C. Next time, open the project folder's terminal, run `.venv\Scripts\activate`, then `uvicorn app.main:app --reload`.
 
-If `py -3.11` is not recognized, install Python 3.11+ and reopen Command Prompt. If port 8000 is already in use, run `uvicorn app.main:app --reload --port 8001` and open http://127.0.0.1:8001.
+If `py -3` is not recognized, install Python 3.11+ and reopen Command Prompt. If port 8000 is already in use, run `uvicorn app.main:app --reload --port 8001` and open http://127.0.0.1:8001.
 
 ### Optional AI provider
 
