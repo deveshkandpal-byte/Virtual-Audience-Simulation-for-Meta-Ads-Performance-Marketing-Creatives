@@ -134,3 +134,49 @@ The shared Master Prompt was retrieved from the conversation's uploaded text fil
 5. **Missing-data discipline:** preserve supplied components verbatim, mark absent fields as "Not provided", and never invent product facts, discounts, deadlines, testimonials, customer outcomes, or guarantees.
 6. **Testable acceptance suite:** cover static, video, carousel, and UGC examples; missing fields; unsupported media; invalid model JSON; provider timeout; single vs. multiple creatives; and the disclaimer/metric uncertainty requirements.
 
+
+
+## Implementation follow-up — 2026-10-15
+
+The initial findings above describe the repository state at the time of the original audit. The repository now contains an early MVP implementation, so the original "only README" finding is historical rather than a description of the current tree.
+
+### Files added
+
+- `app/main.py` — FastAPI backend with health endpoint, ad-copy/image review, conservative local heuristic report, optional OpenAI-compatible vision/text review, and a copy-optimization endpoint.
+- `app/static/index.html` — responsive single-page interface with campaign fields, report display, JSON copy/download, and copy-optimization control.
+- `requirements.txt`, `.env.example`, `.gitignore`, and `Dockerfile` — setup and runtime foundation.
+- `tests/test_analysis.py` — endpoint and guardrail tests.
+- `.github/workflows/tests.yml` — CI workflow to install dependencies and run pytest.
+- Updated `README.md` — beginner-oriented Windows setup instructions and a truthful description of current capabilities.
+- This `AUDIT.md` — original findings plus this implementation follow-up.
+
+### Current implementation status
+
+| Capability | Current status |
+|---|---|
+| Local web UI and API | Implemented; not deployed or browser-tested in this audit |
+| Health endpoint | Implemented |
+| Ad-copy review | Implemented; local mode is rule-based, not a real audience panel |
+| JPEG/PNG/WebP upload | Implemented with MIME, size, and file-signature checks; no full malware scanning |
+| Optional AI-assisted copy/image review | Implemented behind provider configuration; requires a valid key and provider/model support |
+| Structured JSON report | Implemented with required-key and core-type checks; full formal JSON Schema validation remains future work |
+| Copy-optimization suggestions | Implemented; local fallback provides conservative guidance, configured AI can suggest alternate copy |
+| JSON copy/download | Implemented in frontend |
+| Automated tests and CI | Added; inspect the Actions run linked from the repository to confirm the latest commit's result |
+| Video analysis | Not implemented |
+| Batch multi-creative comparison | Not implemented |
+| Image/video asset generation or editing | Not implemented |
+| Direct Meta Ads Manager publishing | Not implemented |
+| Validated predictive performance model | Not implemented |
+
+### Remaining risks and next priorities
+
+1. Complete formal response-schema validation, including each recommendation item and all metric fields.
+2. Expand tests for provider timeouts, malformed provider responses, upload size limits, and optional AI mode. Check the latest GitHub Actions run before considering this release stable.
+3. Implement the Master Prompt's multi-creative comparison report and explicit comparative summary/action plan.
+4. Add clearer video-analysis support only after choosing and testing an appropriate provider. Until then, users can paste scripts or describe a video concept.
+5. Add a privacy/retention policy and deployment guidance before exposing the app to the public internet.
+6. Add real visual auto-generation only as a separately labeled feature; the current copy optimizer does not create image/video assets.
+7. Do not show numeric CTR, conversion, or ROAS forecasts as validated predictions without a permitted historical dataset and documented model evaluation.
+
+The app is an early MVP, not a finished production service. AI-assisted mode depends on the user's own provider credentials and may incur charges. Without credentials, it remains usable in limited local heuristic mode.
