@@ -101,13 +101,13 @@ def heuristic_report(data: dict[str, str], image_attached: bool, image_inspected
     video_checks = None
     if "video" in creative_type_text or "script" in creative_type_text or "ugc" in creative_type_text:
         script_words = ad_copy.split() if ad_copy != "Not provided" else []
-        first_sentence = re.split(r"(?<=[.!?])\\s+", ad_copy)[0] if script_words else "Not provided"
+        first_sentence = re.split(r"(?<=[.!?])\s+", ad_copy)[0] if script_words else "Not provided"
         video_checks = {
             "scope": "Script/concept only; no video file, frame sequence, or audio track was analyzed.",
             "opening_hook": "Review manually: " + (first_sentence[:240] if first_sentence != "Not provided" else "Not provided — add the opening line or first 3-second hook."),
             "first_3_seconds": "A script-only review cannot verify visual motion, sound, or actual viewer retention. Put the clearest hook or visual promise first, then test it.",
             "pacing": "Script length is approximately " + str(len(script_words)) + " words. This is a rough script-length indicator, not a measured speaking duration or retention estimate.",
-            "visual_direction": "Not provided" if not re.search(r"\\b(scene|shot|close-up|cut to|show|visual|b-roll|unboxing|on screen)\\b", ad_copy, re.I) else "Some visual directions appear in the supplied script; verify that the edit makes them clear.",
+            "visual_direction": "Not provided" if not re.search(r"\b(scene|shot|close-up|cut to|show|visual|b-roll|unboxing|on screen)\b", ad_copy, re.I) else "Some visual directions appear in the supplied script; verify that the edit makes them clear.",
             "audio_and_subtitles": "Not provided — specify voice-over/dialogue, sound design, and subtitle plan if relevant.",
             "closing_cta": cta if cta != "Not provided" else "Not provided — specify the closing CTA and ensure it matches the destination.",
             "recommended_checks": [
