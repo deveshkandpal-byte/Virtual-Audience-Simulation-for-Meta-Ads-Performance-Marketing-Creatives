@@ -104,3 +104,30 @@ def test_image_with_mismatched_content_signature_is_rejected():
     )
     assert response.status_code == 415
     assert "contents do not match" in response.json()["detail"]
+
+
+
+def test_comparison_endpoint_returns_individual_reports_and_disclaimer():
+    response = client.post(
+        "/api/compare",
+        json={
+            "objective": "Sales",
+            "audience": "Urban professionals",
+            "creatives": [
+                {"name": "Variant A", "heading": "Lunch made easy", "ad_copy": "Explore lunch options for your office team.", "offer": "Menu varies", "cta": "Learn More", "destination": "Website"},
+                {"name": "Variant B", "heading": "Office lunch options", "ad_copy": "See available lunch choices for your team.", "offer": "", "cta": "Learn More", "destination": "Website"},
+            ],
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["creative_count"] == 2
+    assert len(body["individual_reports"]) == 2
+    assert "component_completeness" in body["comparative_summary"]
+    assert "does not identify a performance winner" in body["comparative_summary"]["interpretation"]
+    assert "No variant is declared the performance winner" in body["disclaimer"]
+
+
+def test_comparison_requires_at_least_two_creatives():
+    response = client.post("/api/compare", json={"creatives": [{"name": "Only one"}]})
+    assert response.status_code == 422
