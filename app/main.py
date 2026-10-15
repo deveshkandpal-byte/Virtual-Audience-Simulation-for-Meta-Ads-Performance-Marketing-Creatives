@@ -236,6 +236,7 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
     system_prompt += "\n\nPROJECT SYSTEM PROMPT (additional required workflow):\n" + project_prompt + "\n\nINDUSTRY STRATEGY PLAYBOOK (reference guidance):\n" + strategy_playbook
     user_payload = {
         "creative_type": data.get("creative_type", "Not provided"),
+        "industry": data.get("industry", "").strip() or "Auto-detect from supplied evidence",
         "heading": data.get("heading", "").strip() or "Not provided",
         "ad_copy": data.get("ad_copy", "").strip() or "Not provided",
         "offer": data.get("offer", "").strip() or "Not provided",
@@ -309,6 +310,7 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
 @app.post("/api/analyze")
 async def analyze(
     creative_type: str = Form("Static Image — Ad Copy Review"),
+    industry: str = Form(""),
     heading: str = Form(""),
     ad_copy: str = Form(""),
     offer: str = Form(""),
@@ -320,6 +322,7 @@ async def analyze(
 ) -> dict[str, Any]:
     data = {
         "creative_type": creative_type.strip() or "Not provided",
+        "industry": industry[:200],
         "heading": heading[:1000],
         "ad_copy": ad_copy[:12000],
         "offer": offer[:3000],
