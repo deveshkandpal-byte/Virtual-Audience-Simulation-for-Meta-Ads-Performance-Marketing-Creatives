@@ -73,6 +73,35 @@ def _rating(text: str, terms: tuple[str, ...]) -> str:
     return "Medium" if hits >= 2 else ("Low" if hits == 0 else "Medium")
 
 
+def format_specific_checks(data: dict[str, str], image_attached: bool = False, image_inspected: bool = False) -> dict[str, Any]:
+    """Return transparent, type-specific checklist prompts without claiming unperformed inspection."""
+    kind = data.get("creative_type", "").lower()
+    checks: dict[str, Any] = {"selected_format": data.get("creative_type", "Not provided"), "scope": "Checklist guidance from supplied text and selected format; not a substitute for inspecting unavailable media."}
+    if any(term in kind for term in ("static image", "image ad", "product hero", "infographic", "before-and-after", "review or rating image")):
+        checks["visual"] = ("Image was supplied to a configured vision-capable provider; review its returned observations." if image_attached and image_inspected else "Image attached but not visually inspected in local mode; composition, contrast, legibility, product visibility, and branding remain unverified." if image_attached else "No image supplied; visual composition, contrast, legibility, product visibility, and branding cannot be verified.")
+        checks["review_points"] = ["One dominant message and clear visual hierarchy", "Readable text at mobile size", "Product/service and branding are recognizable", "Claims, comparisons, and before/after depictions are substantiated"]
+    elif "carousel" in kind:
+        checks["review_points"] = ["First card communicates a clear reason to swipe", "Each card advances one coherent story or feature", "Consistent typography, visual style, and product facts", "Final card includes a clear, destination-aligned CTA"]
+        checks["missing_evidence"] = "Individual card images and their order were not supplied, so sequence and visual consistency are not verified."
+    elif any(term in kind for term in ("collection", "catalog", "product-set", "dynamic product", "personalized product")):
+        checks["review_points"] = ["Product set and audience intent are relevant", "Catalog imagery, titles, prices, and availability are accurate", "Personalization and retargeting logic are appropriate and privacy-compliant", "Ad-to-product-page transition is clear"]
+        checks["missing_evidence"] = "Catalog feed, product set, and campaign eligibility were not supplied; these cannot be audited from copy alone."
+    elif any(term in kind for term in ("ugc", "testimonial", "social proof", "customer review", "influencer", "creator endorsement", "founder story", "expert-led", "vox-pop", "podcast")):
+        checks["review_points"] = ["Identity, testimonial, and results are genuine and authorized", "Specific claims have supporting evidence", "Creator delivery fits the intended audience", "CTA and offer are clear"]
+        checks["integrity_warning"] = "Do not invent customers, reviews, credentials, endorsements, or outcomes. Commissioned UGC-style content is not automatically a genuine customer testimonial."
+    elif any(term in kind for term in ("comparison", "educational", "faq", "objection", "explainer", "tutorial", "screen-recording", "demonstration")):
+        checks["review_points"] = ["Comparison criteria are fair and factual", "Explanation solves one audience question or objection", "Features are distinguished from substantiated benefits", "On-screen text and next step are easy to follow"]
+    elif any(term in kind for term in ("offer", "discount", "promotion", "bundle", "free trial", "lead magnet", "consultation", "whatsapp", "direct-response", "retargeting")):
+        checks["review_points"] = ["Offer terms, price, eligibility, and deadline are confirmed", "Value is clear without misleading urgency", "CTA matches the campaign objective and destination", "Conversion path has minimal avoidable friction"]
+    elif any(term in kind for term in ("storytelling", "engagement", "meme", "trend", "behind-the-scenes", "day-in-the-life", "local business", "lifestyle")):
+        checks["review_points"] = ["Story is relevant to the intended audience", "Entertainment or emotion connects to the actual offering", "Brand/product is not lost in the concept", "CTA fits the funnel stage"]
+    elif any(term in kind for term in ("industry-specific", "food", "property", "real estate", "beauty", "fashion", "software", "service-business", "product assembly")):
+        checks["review_points"] = ["Execution matches the real product/service and industry context", "Visual or demonstration details are accurate and available", "Claims and proof are substantiated", "Next step matches the buying journey"]
+    else:
+        checks["review_points"] = ["Check the selected format against docs/CREATIVE_TYPE_LIBRARY.md", "Assess hook, message, offer, CTA, trust, audience fit, and destination", "Supply actual visuals/cards/video for visual or sequence-level review"]
+    return checks
+
+
 def heuristic_report(data: dict[str, str], image_attached: bool, image_inspected: bool = False) -> dict[str, Any]:
     """Conservative local fallback; never pretends to be a trained predictive model."""
     heading = data.get("heading", "").strip() or "Not provided"
@@ -176,6 +205,7 @@ def heuristic_report(data: dict[str, str], image_attached: bool, image_inspected
         ],
         "context": {"campaign_objective": objective, "target_audience": audience, "destination": destination},
         "video_script_checks": video_checks,
+        "format_specific_checks": format_specific_checks(data, image_attached, image_inspected),
         "simulation_notice": "This is a local rule-based review, not an AI audience panel, trained predictive model, or actual Meta Ads result.",
         "visual_review_notice": (
             "The uploaded image was not visually inspected because no AI provider is configured."
@@ -194,7 +224,7 @@ def _call_vision_model(data: dict[str, str], image_bytes: bytes | None, image_ty
     model = os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip()
     system_prompt = """You review Meta Ads creatives for performance marketers. Analyze the provided facts only.
 Return exactly one valid JSON object. Required keys: creative_type (string), components (heading, ad_copy, offer, cta strings), simulated_performance (engagement_rate, ctr, conversion_rate strings), analysis (strengths and weaknesses arrays of strings), recommended_modifications (array of objects with component and suggestion strings), overall_assessment (one of: Ready for controlled testing, Requires minor modifications, Requires major modifications, Not recommended in its current form). You may add audience_responses (array of objects), action_plan (array of objects with priority and action), context, simulation_notice, visual_review_notice.
-Never invent product facts, discounts, guarantees, testimonials, deadlines, or outcomes. Missing components must say Not provided. Do not claim metrics are actual results or reliably predict CTR, conversion, or ROAS. Prefer qualitative ratings; if evidence is insufficient, say so. Explain assumptions and uncertainty. Do not assume one ad format always wins. Evaluate relevant audience fit, hook, heading, copy, offer, CTA, visual, trust signals, destination, pacing/subtitles/audio if video details are provided. For multiple creatives, this endpoint handles one creative at a time; do not invent a comparison."""
+Never invent product facts, discounts, guarantees, testimonials, deadlines, or outcomes. Missing components must say Not provided. Do not claim metrics are actual results or reliably predict CTR, conversion, or ROAS. Prefer qualitative ratings; if evidence is insufficient, say so. Explain assumptions and uncertainty. Do not assume one ad format always wins. Use the complete format/concept taxonomy: static image (single image, product hero, lifestyle, offer graphic, problem-solution, before-after, infographic, review/rating, founder/brand); video (macro, demo, unboxing, ASMR, cinematic/lifestyle, problem-solution, before-after, how-to, founder-led, animation/motion graphics, 3D); UGC (talking head, customer story, review, first impressions, routine/demo, testimonial-style, voice-over with footage, creator problem-solution, influencer-style); carousel (multi-product, feature cards, step-by-step, problem-solution-benefit, variants, reviews, service showcase, storytelling, comparison); collection/catalog (hero collection, catalog, dynamic retargeting, personalized recommendations, product sets); social proof (testimonial, review/rating, influencer/creator, founder story, expert, podcast, vox-pop, challenge/experiment); comparison/education (product/service comparison, competitor alternative, objection handling, FAQ, feature-benefit explainer, text overlays, tutorial, screen recording, animated explainer); promotion/conversion (offer, sale, limited-time only if verified, bundle, trial/sample, lead magnet, audit/consultation, WhatsApp, direct response, retargeting, personalized catalog); storytelling/engagement (brand/customer story, humor/meme, trend, behind-the-scenes, day-in-life, lifestyle demo, reveal, packaging reveal, local business); industry styles (food/ASMR, property walkthrough/floor plan, beauty routine, fashion try-on, software UI, service case study, local service, assembly/use demo, expert explanation, service lead generation). Apply format-specific checks; do not force irrelevant types. Evaluate relevant audience fit, hook, heading, copy, offer, CTA, visual, trust signals, destination, pacing/subtitles/audio if video details are provided. For carousel, assess first card and sequence; for catalog, product/feed relevance; for UGC/testimonial, authenticity and claim evidence; for promotional ads, verified terms and urgency. If actual media is not supplied or inspected, state that clearly. For multiple creatives, this endpoint handles one creative at a time; do not invent a comparison."""
     user_payload = {
         "creative_type": data.get("creative_type", "Not provided"),
         "heading": data.get("heading", "").strip() or "Not provided",
@@ -247,6 +277,7 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
         report["components"].setdefault(key, user_payload.get(key, "Not provided"))
     report["simulation_notice"] = "AI-generated simulated assessment only. These are hypotheses, not actual Meta Ads results or validated performance predictions."
     report["visual_review_notice"] = "Image submitted to the configured AI provider for visual review." if image_bytes else "No image was supplied."
+    report["format_specific_checks"] = format_specific_checks(data, image_attached=image_bytes is not None, image_inspected=image_bytes is not None)
     if "video" in data.get("creative_type", "").lower() or "script" in data.get("creative_type", "").lower() or "ugc" in data.get("creative_type", "").lower():
         report["video_script_checks"] = {
             "scope": "Script/concept only; no video file or audio track was analyzed.",
