@@ -248,12 +248,14 @@ def heuristic_optimization(data: dict[str, str]) -> dict[str, Any]:
     offer = data.get("offer", "").strip()
     cta = data.get("cta", "").strip()
     objective = data.get("objective", "Sales").strip() or "Sales"
+    objective_lower = objective.lower()
+    suggested_cta = "Send Message" if objective_lower == "whatsapp conversations" else ("Get a Quote" if objective_lower == "leads" else ("Learn More" if objective_lower in {"traffic", "awareness", "engagement"} else "Shop Now"))
     return {
         "optimized_creative": {
             "heading": heading if heading else "Add a clear, specific headline based on a verified benefit",
             "ad_copy": ad_copy if ad_copy else "Add the product or service, its verified benefit, and the reason it is relevant to your audience. Replace this guidance with confirmed details before publishing.",
             "offer": offer if offer else "Not provided — add only the actual, confirmed offer or product details.",
-            "cta": cta if cta else ("Send Message" if objective.lower() == "whatsapp conversations" else ("Get a Quote" if objective.lower() == "leads" else ("Learn More" if objective.lower() in {"traffic", "awareness", "engagement"} else "Shop Now")) ,
+            "cta": cta if cta else suggested_cta,
         },
         "changes": [
             {"component": "heading", "reason": "Keep the headline specific and grounded in a benefit that the business can substantiate."},
