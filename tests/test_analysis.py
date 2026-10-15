@@ -48,14 +48,14 @@ def test_local_report_has_master_prompt_fields():
     assert "audience_responses" in report
 
 
-def test_video_upload_is_rejected_with_explanation():
+def test_invalid_video_upload_is_rejected_with_explanation():
     response = client.post(
         "/api/analyze",
-        data={"creative_type": "Video", "objective": "Sales"},
+        data={"creative_type": "Video — Product demonstration", "objective": "Sales"},
         files={"creative_file": ("sample.mp4", b"not-a-real-video", "video/mp4")},
     )
     assert response.status_code == 415
-    assert "Video upload is not supported" in response.json()["detail"]
+    assert "could not be decoded" in response.json()["detail"] or "No readable video frames" in response.json()["detail"]
 
 
 def test_unsupported_file_type_is_rejected():
