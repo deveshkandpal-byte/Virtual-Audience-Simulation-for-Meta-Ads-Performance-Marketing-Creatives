@@ -10,6 +10,8 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 
 - Campaign context: objective, audience, offer, CTA, and destination.
 - Creative review for supplied copy and JPEG, PNG, or WebP images (maximum 8 MB).
+- A creative-type selector covering the full format/concept taxonomy in the Master Prompt, including static images, video concepts, UGC, carousels, collection/catalog, social proof, comparison/education, promotion/conversion, storytelling, and industry-specific styles.
+- Format-specific checklists for image, video-script, carousel, catalog, testimonial/social-proof, educational/comparison, promotional, storytelling, and industry-style concepts. Checklists clearly disclose missing media or evidence.
 - Structured report with the Master Prompt's core fields: creative type, components, simulated performance labels, strengths, weaknesses, recommended modifications, and overall assessment.
 - Audience-response hypotheses and a prioritized action plan.
 - Copy optimization suggestions. A configured OpenAI-compatible API can generate AI-assisted copy suggestions; without one, the app returns local guidance.
@@ -20,6 +22,7 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 ## Not implemented yet
 
 - Direct video upload or video-frame/audio analysis. Script-only video/UGC checklist guidance is available, but the app does not inspect rendered video, audio, or real retention.
+- A separate uploaded multi-image carousel/card-sequence inspector; carousel guidance is currently checklist-based unless its cards are individually supplied and inspected.
 - Actual virtual human participants, eye-tracking, or measured audience experiments.
 - A predictive model trained and validated on historical Meta Ads campaign data.
 - Visual asset generation or automatic image/video editing.
@@ -27,7 +30,11 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 
 These are potential future phases, not current features. The app must not describe simulated labels as actual campaign results.
 
-## Run on Windows (beginner guide)
+## Quick start on Windows (beginner guide)
+
+For the simplest setup, download the repository ZIP and extract it. Double-click **`install_windows.bat`** once to install dependencies, then double-click **`run_windows.bat`** whenever you want to start the app. The app opens at `http://127.0.0.1:8000`; keep its terminal window open while using it. If Windows blocks a script, follow the manual commands below.
+
+## Run on Windows (manual guide)
 
 You only need to do these steps once to set up the project. You do **not** need to know how to write code to follow them.
 
@@ -74,11 +81,7 @@ To stop the app, return to Command Prompt and press **Ctrl+C**.
 
 The app can use an OpenAI-compatible chat-completions API for text analysis and image review. This requires a valid provider API key and may incur provider charges. The API key is **not** included in this repository.
 
-1. Create a local file named `.env` based on `.env.example`.
-2. Add your own key and, if needed, provider base URL and model.
-3. Keep `.env` private. Never commit it to GitHub or share it in screenshots.
-
-The application does not automatically load `.env` files. Before starting the app in Windows Command Prompt, set the variables in that same terminal session:
+Use `.env.example` as a reference for the variable names. The application does **not** automatically load `.env` files, so you do not need to create one for the basic setup. Before starting the app in Windows Command Prompt, set the variables in that same terminal session:
 
 ```bat
 set OPENAI_API_KEY=your_key_here
@@ -88,6 +91,14 @@ uvicorn app.main:app --reload
 ```
 
 Replace `your_key_here` with your own secret. Do not paste it into public issues, chat messages, or source files. Check your provider's model and image-input support before use. If you do not configure a provider, the app still runs in local heuristic mode.
+
+## Full creative-type library and AI-agent skill
+
+- [Complete creative types, concepts, and format-specific review criteria](docs/CREATIVE_TYPE_LIBRARY.md)
+- [Portable AI-agent skill](skills/virtual-audience-simulation/SKILL.md)
+- [Local Windows and AI-agent skill setup guide](AGENT_SETUP.md)
+
+The skill is a reusable instruction file, not a binary plugin. Agent compatibility and skill discovery vary; users may need to copy it into the agent's documented skills directory or explicitly ask the agent to read it. A skill does not itself grant shell, browser, model, or API access.
 
 ## Using the app
 
