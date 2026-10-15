@@ -12,6 +12,7 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 - Audience-response hypotheses and a prioritized action plan.
 - Copy optimization suggestions. A configured OpenAI-compatible API can generate AI-assisted copy suggestions; without one, the app returns local guidance.
 - Copy or download the report as JSON.
+- Compare 2–10 copy variants under shared campaign context using a separate readiness/completeness report (does not predict a winner).
 - Health endpoint at `/health`, automated tests, and GitHub Actions CI.
 
 ## Not implemented yet
@@ -21,7 +22,9 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 - A predictive model trained and validated on historical Meta Ads campaign data.
 - Visual asset generation or automatic image/video editing.
 - Direct publishing or export into Meta Ads Manager.
-- Multi-creative batch comparison.
+- Image/video asset generation or editing.
+- Direct publishing or export into Meta Ads Manager.
+- A predictive model trained and validated on historical Meta Ads campaign data.
 
 These are potential future phases, not current features. The app must not describe simulated labels as actual campaign results.
 
