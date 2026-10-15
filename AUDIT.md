@@ -1,5 +1,7 @@
 # Repository Audit — 2026-10-15
 
+> **Current status note:** The opening findings below describe the repository before implementation and are historical. The repository now contains an early FastAPI MVP, creative-type taxonomy, tests, local setup scripts, Docker Compose configuration, and an AI-agent skill. See **Implementation follow-up** and the current README for present capabilities and remaining gaps.
+
 ## Scope and evidence
 
 Repository: `deveshkandpal-byte/Virtual-Audience-Simulation-for-Meta-Ads-Performance-Marketing-Creatives`
@@ -180,3 +182,12 @@ The initial findings above describe the repository state at the time of the orig
 7. Do not show numeric CTR, conversion, or ROAS forecasts as validated predictions without a permitted historical dataset and documented model evaluation.
 
 The app is an early MVP, not a finished production service. AI-assisted mode depends on the user's own provider credentials and may incur charges. Without credentials, it remains usable in limited local heuristic mode.
+
+
+## Local deployment follow-up — 2026-10-15
+
+- Added `LOCAL_SETUP.md` with Windows quick start, manual Python setup for Windows/macOS/Linux, Docker Compose steps, troubleshooting, privacy, and test instructions.
+- Added `compose.yaml` with a loopback-only port binding (`127.0.0.1:8000:8000`) and optional provider environment variables.
+- Hardened image upload handling to verify actual decodability and declared format with Pillow, enforce an 8 MB upload limit, and reject images above 25 megapixels.
+- Added tests for valid PNG/JPEG uploads, header-only fake images, upload size limits, and pixel limits.
+- These changes improve local usability and input validation; they do not implement direct video/audio analysis, image generation, or a validated predictive audience model.
