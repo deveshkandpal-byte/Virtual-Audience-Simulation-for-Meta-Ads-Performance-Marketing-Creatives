@@ -137,7 +137,7 @@ def heuristic_report(data: dict[str, str], image_attached: bool, image_inspected
         video_checks = {
             "scope": "Script/concept only; no video file, frame sequence, or audio track was analyzed.",
             "opening_hook": "Review manually: " + (first_sentence[:240] if first_sentence != "Not provided" else "Not provided — add the opening line or first 3-second hook."),
-            "first_3_seconds": "A script-only review cannot verify visual motion, sound, or actual viewer retention. Put the clearest hook or visual promise first, then test it.",
+            "first_3_seconds": "A script-only review cannot verify visual motion or sound; actual viewer retention is not measured. Put the clearest hook or visual promise first, then test it.",
             "pacing": "Script length is approximately " + str(len(script_words)) + " words. This is a rough script-length indicator, not a measured speaking duration or retention estimate.",
             "visual_direction": "Not provided" if not re.search(r"\b(scene|shot|close-up|cut to|show|visual|b-roll|unboxing|on screen)\b", ad_copy, re.I) else "Some visual directions appear in the supplied script; verify that the edit makes them clear.",
             "audio_and_subtitles": "Not provided — specify voice-over/dialogue, sound design, and subtitle plan if relevant.",
