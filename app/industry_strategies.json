@@ -1,0 +1,644 @@
+{
+  "version": "1.0",
+  "purpose": "Industry-specific starting hypotheses, not guaranteed winning formulas.",
+  "industry_detection_keywords": {
+    "ecommerce_dtc": [
+      "ecommerce",
+      "e-commerce",
+      "shop",
+      "product retail",
+      "d2c",
+      "dtc"
+    ],
+    "beauty_personal_care": [
+      "beauty",
+      "skincare",
+      "skin care",
+      "haircare",
+      "hair care",
+      "cosmetic",
+      "salon",
+      "personal care"
+    ],
+    "food_beverage": [
+      "food",
+      "restaurant",
+      "cafe",
+      "café",
+      "cloud kitchen",
+      "beverage",
+      "meal",
+      "bakery",
+      "catering"
+    ],
+    "real_estate": [
+      "real estate",
+      "property",
+      "apartment",
+      "flat",
+      "villa",
+      "housing",
+      "builder",
+      "realtor"
+    ],
+    "saas_software": [
+      "saas",
+      "software",
+      "app",
+      "platform",
+      "crm",
+      "subscription"
+    ],
+    "education_courses": [
+      "education",
+      "course",
+      "coaching",
+      "training",
+      "academy",
+      "tuition",
+      "edtech"
+    ],
+    "local_services": [
+      "plumber",
+      "cleaning",
+      "repair",
+      "electrician",
+      "home service"
+    ],
+    "healthcare": [
+      "clinic",
+      "hospital",
+      "doctor",
+      "healthcare",
+      "dentist",
+      "diagnostic",
+      "physiotherapy"
+    ],
+    "wellness_ayurveda": [
+      "ayurveda",
+      "ayurvedic",
+      "supplement",
+      "wellness",
+      "herbal",
+      "shilajit",
+      "stamina",
+      "nutrition"
+    ],
+    "fashion_apparel": [
+      "fashion",
+      "clothing",
+      "apparel",
+      "boutique",
+      "garment",
+      "footwear",
+      "jewellery",
+      "jewelry"
+    ],
+    "travel_hospitality": [
+      "hotel",
+      "resort",
+      "travel",
+      "tour",
+      "homestay",
+      "hospitality"
+    ],
+    "b2b_agency": [
+      "agency",
+      "digital marketing",
+      "marketing agency",
+      "lead generation",
+      "consulting",
+      "b2b"
+    ],
+    "finance_insurance": [
+      "finance",
+      "loan",
+      "insurance",
+      "investment",
+      "mutual fund",
+      "credit"
+    ],
+    "automotive": [
+      "automotive",
+      "car",
+      "bike",
+      "vehicle",
+      "dealership",
+      "automobile"
+    ],
+    "home_lifestyle": [
+      "furniture",
+      "home decor",
+      "interior",
+      "mattress",
+      "kitchen",
+      "home improvement"
+    ],
+    "recruitment_hr": [
+      "recruitment",
+      "staffing",
+      "manpower",
+      "hr services",
+      "jobs",
+      "placement"
+    ],
+    "legal_services": [
+      "lawyer",
+      "legal",
+      "law firm",
+      "advocate",
+      "legal services"
+    ]
+  },
+  "industries": {
+    "ecommerce_dtc": {
+      "label": "E-commerce / DTC",
+      "formats": [
+        "product demo",
+        "lifestyle/product hero",
+        "creator demo",
+        "feature carousel",
+        "catalog/retargeting when configured"
+      ],
+      "angles": [
+        "real use case",
+        "verified differentiation",
+        "buying objection",
+        "transparent value"
+      ],
+      "ctas": [
+        "Shop Now",
+        "View Product",
+        "Learn More"
+      ],
+      "offers": [
+        "verified bundle",
+        "confirmed shipping/COD",
+        "genuine sample"
+      ],
+      "guardrails": [
+        "Never invent reviews, scarcity, discount, delivery promise or product results."
+      ]
+    },
+    "beauty_personal_care": {
+      "label": "Beauty / personal care",
+      "formats": [
+        "routine demo",
+        "texture close-up",
+        "creator tutorial",
+        "ingredient/feature explainer",
+        "FAQ carousel"
+      ],
+      "angles": [
+        "routine fit",
+        "use instructions",
+        "supported cosmetic benefit",
+        "product education"
+      ],
+      "ctas": [
+        "Shop Now",
+        "Explore the Routine",
+        "Learn More"
+      ],
+      "offers": [
+        "verified routine bundle",
+        "confirmed intro price",
+        "genuine sample"
+      ],
+      "guardrails": [
+        "No guaranteed growth, cure, transformation or unsupported medical claims."
+      ]
+    },
+    "food_beverage": {
+      "label": "Food / beverage / restaurant",
+      "formats": [
+        "food macro/texture video",
+        "preparation/ASMR",
+        "menu static",
+        "menu carousel",
+        "chef/customer story"
+      ],
+      "angles": [
+        "actual dish and texture",
+        "meal occasion",
+        "menu variety",
+        "verified convenience"
+      ],
+      "ctas": [
+        "Order Now",
+        "View Menu",
+        "WhatsApp Us"
+      ],
+      "offers": [
+        "confirmed combo",
+        "real free add-on",
+        "accurate catering package"
+      ],
+      "guardrails": [
+        "Do not invent price, ingredients, ratings, delivery time or availability."
+      ]
+    },
+    "real_estate": {
+      "label": "Real estate / property",
+      "formats": [
+        "real walkthrough",
+        "room-by-room tour",
+        "floor-plan carousel",
+        "location/amenity explainer"
+      ],
+      "angles": [
+        "verified location",
+        "layout/use case",
+        "confirmed amenities",
+        "viewing process"
+      ],
+      "ctas": [
+        "Book a Site Visit",
+        "Get Details",
+        "WhatsApp Us"
+      ],
+      "offers": [
+        "verified consultation",
+        "documented payment terms"
+      ],
+      "guardrails": [
+        "No fake scarcity, guaranteed appreciation/rent, unverified amenities or misleading CGI."
+      ]
+    },
+    "saas_software": {
+      "label": "SaaS / software / apps",
+      "formats": [
+        "screen recording/demo",
+        "workflow demo",
+        "feature carousel",
+        "expert explainer",
+        "evidence-backed case study"
+      ],
+      "angles": [
+        "job-to-be-done",
+        "workflow friction",
+        "real feature",
+        "supported differentiation"
+      ],
+      "ctas": [
+        "Start Free Trial",
+        "Book a Demo",
+        "See How It Works"
+      ],
+      "offers": [
+        "real trial/demo",
+        "verified plan terms",
+        "product walkthrough"
+      ],
+      "guardrails": [
+        "No invented customer logos, integrations, certifications or ROI."
+      ]
+    },
+    "education_courses": {
+      "label": "Education / courses",
+      "formats": [
+        "sample lesson",
+        "instructor demo",
+        "curriculum carousel",
+        "authorized learner story"
+      ],
+      "angles": [
+        "what is taught",
+        "teaching method",
+        "learner fit",
+        "realistic outcome evidence"
+      ],
+      "ctas": [
+        "View Curriculum",
+        "Book a Counselling Call",
+        "Enroll Now"
+      ],
+      "offers": [
+        "genuine sample class",
+        "verified scholarship/discount"
+      ],
+      "guardrails": [
+        "No guaranteed jobs, salaries, admissions or income."
+      ]
+    },
+    "local_services": {
+      "label": "Local services",
+      "formats": [
+        "service showcase",
+        "team/process video",
+        "FAQ",
+        "local-area creative"
+      ],
+      "angles": [
+        "service + area",
+        "real differentiator",
+        "process clarity",
+        "genuine proof"
+      ],
+      "ctas": [
+        "Get a Quote",
+        "Book Now",
+        "WhatsApp Us"
+      ],
+      "offers": [
+        "real free estimate",
+        "confirmed consultation"
+      ],
+      "guardrails": [
+        "No fabricated reviews, credentials, coverage or response time."
+      ]
+    },
+    "healthcare": {
+      "label": "Healthcare / clinics",
+      "formats": [
+        "qualified clinician explainer",
+        "service walkthrough",
+        "FAQ carousel",
+        "facility/team showcase"
+      ],
+      "angles": [
+        "factual service info",
+        "patient process",
+        "qualification",
+        "appointment clarity"
+      ],
+      "ctas": [
+        "Book an Appointment",
+        "Learn More",
+        "Contact the Clinic"
+      ],
+      "offers": [
+        "confirmed transparent consultation"
+      ],
+      "guardrails": [
+        "No guaranteed cure, viewer diagnosis, fear tactics or unsupported claims."
+      ]
+    },
+    "wellness_ayurveda": {
+      "label": "Wellness / Ayurveda / supplements",
+      "formats": [
+        "ingredient explainer",
+        "routine demo",
+        "documented quality process",
+        "expert explainer",
+        "FAQ"
+      ],
+      "angles": [
+        "verified composition",
+        "intended use",
+        "responsible routine",
+        "documented quality evidence"
+      ],
+      "ctas": [
+        "Learn More",
+        "View Product",
+        "Shop Now"
+      ],
+      "offers": [
+        "confirmed pack/bundle",
+        "verified shipping"
+      ],
+      "guardrails": [
+        "No cure/treatment, guaranteed stamina/weight loss or fabricated testing claims."
+      ]
+    },
+    "fashion_apparel": {
+      "label": "Fashion / apparel",
+      "formats": [
+        "try-on/styling",
+        "outfit carousel",
+        "fabric close-up",
+        "lookbook",
+        "creator styling"
+      ],
+      "angles": [
+        "fit",
+        "material",
+        "occasion",
+        "styling utility"
+      ],
+      "ctas": [
+        "Shop the Look",
+        "Explore Collection",
+        "Choose Your Size"
+      ],
+      "offers": [
+        "verified multi-buy",
+        "confirmed seasonal offer"
+      ],
+      "guardrails": [
+        "No inaccurate fit, stock, material or sustainability claims."
+      ]
+    },
+    "travel_hospitality": {
+      "label": "Travel / hospitality",
+      "formats": [
+        "real room tour",
+        "destination experience",
+        "amenity carousel",
+        "authorized review"
+      ],
+      "angles": [
+        "experience",
+        "location",
+        "inclusions",
+        "booking conditions"
+      ],
+      "ctas": [
+        "Check Availability",
+        "View Rooms",
+        "Plan Your Stay"
+      ],
+      "offers": [
+        "verified package",
+        "transparent inclusions"
+      ],
+      "guardrails": [
+        "No fake ratings, availability or hidden fees."
+      ]
+    },
+    "b2b_agency": {
+      "label": "B2B / agency / professional services",
+      "formats": [
+        "audit preview",
+        "expert insight",
+        "anonymized real dashboard",
+        "evidence-backed case study",
+        "service carousel"
+      ],
+      "angles": [
+        "specific business problem",
+        "method",
+        "evidence",
+        "service scope"
+      ],
+      "ctas": [
+        "Get a Free Audit",
+        "Book a Strategy Call",
+        "Request a Proposal"
+      ],
+      "offers": [
+        "audit only if truly free/scoped",
+        "discovery call"
+      ],
+      "guardrails": [
+        "No guaranteed ROAS/leads, fake dashboards or invented clients."
+      ]
+    },
+    "finance_insurance": {
+      "label": "Finance / insurance",
+      "formats": [
+        "explainer",
+        "fair comparison",
+        "FAQ",
+        "qualified expert"
+      ],
+      "angles": [
+        "plain-language explanation",
+        "fees and terms",
+        "balanced risk/benefit"
+      ],
+      "ctas": [
+        "Learn More",
+        "Check Eligibility",
+        "Speak to an Advisor"
+      ],
+      "offers": [
+        "approved documented terms"
+      ],
+      "guardrails": [
+        "No guaranteed returns, fake approvals or omitted material risks/fees."
+      ]
+    },
+    "automotive": {
+      "label": "Automotive / dealerships",
+      "formats": [
+        "walkaround",
+        "feature demo",
+        "variant carousel",
+        "test-drive invite"
+      ],
+      "angles": [
+        "verified feature",
+        "real use case",
+        "variant clarity",
+        "price basis"
+      ],
+      "ctas": [
+        "Book a Test Drive",
+        "Explore Variants",
+        "Get a Quote"
+      ],
+      "offers": [
+        "verified finance/exchange terms"
+      ],
+      "guardrails": [
+        "No invented specs, guaranteed finance or false stock claims."
+      ]
+    },
+    "home_lifestyle": {
+      "label": "Home / furniture / decor",
+      "formats": [
+        "room styling",
+        "product detail/assembly demo",
+        "dimension carousel",
+        "authentic before/after"
+      ],
+      "angles": [
+        "style + function",
+        "material",
+        "dimensions",
+        "delivery/install"
+      ],
+      "ctas": [
+        "Shop Now",
+        "Explore Designs",
+        "Request a Quote"
+      ],
+      "offers": [
+        "confirmed set/installation/shipping offer"
+      ],
+      "guardrails": [
+        "No misleading scale, material or delivery claims."
+      ]
+    },
+    "recruitment_hr": {
+      "label": "Recruitment / HR",
+      "formats": [
+        "role/service explainer",
+        "recruiter video",
+        "process carousel",
+        "employer case study"
+      ],
+      "angles": [
+        "actual role/service",
+        "criteria",
+        "location",
+        "process"
+      ],
+      "ctas": [
+        "Apply Now",
+        "Submit Details",
+        "Book a Consultation"
+      ],
+      "offers": [
+        "genuine resume review",
+        "confirmed consultation"
+      ],
+      "guardrails": [
+        "No fake jobs, guaranteed placement or misleading salary."
+      ]
+    },
+    "legal_services": {
+      "label": "Legal services",
+      "formats": [
+        "expert myth-vs-fact",
+        "process infographic",
+        "FAQ carousel"
+      ],
+      "angles": [
+        "accurate general information",
+        "jurisdiction",
+        "scope",
+        "transparent process"
+      ],
+      "ctas": [
+        "Book a Consultation",
+        "Learn More",
+        "Contact the Office"
+      ],
+      "offers": [
+        "transparent consultation only if offered"
+      ],
+      "guardrails": [
+        "No guaranteed outcomes or fabricated credentials."
+      ]
+    },
+    "other": {
+      "label": "General / uncertain industry",
+      "formats": [
+        "product/service demo",
+        "problem/solution",
+        "FAQ/comparison",
+        "verified offer-led creative"
+      ],
+      "angles": [
+        "actual offering",
+        "one substantiated benefit",
+        "audience objection",
+        "clear next step"
+      ],
+      "ctas": [
+        "Learn More",
+        "Get Details",
+        "Get a Quote"
+      ],
+      "offers": [
+        "confirmed value/terms only"
+      ],
+      "guardrails": [
+        "State uncertainty; never invent claims, evidence or urgency."
+      ]
+    }
+  }
+}
