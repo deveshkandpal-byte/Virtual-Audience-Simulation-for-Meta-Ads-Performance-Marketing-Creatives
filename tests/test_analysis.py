@@ -1,4 +1,7 @@
+import io
+
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from app.main import app, heuristic_report
 
@@ -196,3 +199,63 @@ def test_static_image_does_not_claim_visual_inspection_without_provider():
 
     checks = format_specific_checks({"creative_type": "Static Image — Product hero shot"}, image_attached=True, image_inspected=False)
     assert "not visually inspected in local mode" in checks["visual"]
+
+
+def _image_bytes(image_format="PNG", size=(2, 2)):
+    buffer = io.BytesIO()
+    Image.new("RGB", size, (120, 140, 160)).save(buffer, format=image_format)
+    return buffer.getvalue()
+
+
+def test_valid_png_upload_passes_image_validation(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    response = client.post(
+        "/api/analyze",
+        data={"creative_type": "Static Image — Product hero shot"},
+        files={"creative_file": ("sample.png", _image_bytes("PNG"), "image/png")},
+    )
+    assert response.status_code == 200
+    assert response.json()["analysis_mode"] == "local_heuristic"
+    assert "not visually inspected in local mode" in response.json()["format_specific_checks"]["visual"]
+
+
+def test_valid_jpeg_upload_passes_image_validation(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    response = client.post(
+        "/api/analyze",
+        data={"creative_type": "Static Image — Product hero shot"},
+        files={"creative_file": ("sample.jpg", _image_bytes("JPEG"), "image/jpeg")},
+    )
+    assert response.status_code == 200
+
+
+def test_header_only_fake_png_is_rejected():
+    response = client.post(
+        "/api/analyze",
+        data={"creative_type": "Static Image"},
+        files={"creative_file": ("fake.png", bytes.fromhex("89504E470D0A1A0A") + b"not-an-image", "image/png")},
+    )
+    assert response.status_code == 415
+    assert "not a valid" in response.json()["detail"]
+
+
+def test_image_pixel_limit_is_enforced(monkeypatch):
+    from app import main
+
+    monkeypatch.setattr(main, "MAX_IMAGE_PIXELS", 4)
+    response = client.post(
+        "/api/analyze",
+        data={"creative_type": "Static Image"},
+        files={"creative_file": ("sample.png", _image_bytes("PNG", (3, 3)), "image/png")},
+    )
+    assert response.status_code == 413
+    assert "25-megapixel" in response.json()["detail"] or "dimensions exceed" in response.json()["detail"]
+
+
+def test_image_upload_size_limit_is_enforced():
+    response = client.post(
+        "/api/analyze",
+        data={"creative_type": "Static Image"},
+        files={"creative_file": ("large.png", b"x" * (8 * 1024 * 1024 + 1), "image/png")},
+    )
+    assert response.status_code == 413
