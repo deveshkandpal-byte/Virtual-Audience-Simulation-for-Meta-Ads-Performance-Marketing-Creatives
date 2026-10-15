@@ -4,6 +4,8 @@ import warnings
 import json
 import os
 import re
+import subprocess
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -19,11 +21,16 @@ from starlette.requests import Request
 from fastapi.staticfiles import StaticFiles
 
 from app.strategy_engine import PLAYBOOK_PATH, SYSTEM_PROMPT_PATH, build_strategy_context, enrich_report
+import imageio_ffmpeg
 
 ROOT = Path(__file__).resolve().parent
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
 MAX_IMAGE_PIXELS = 25_000_000
+MAX_VIDEO_BYTES = 25 * 1024 * 1024
+MAX_VIDEO_SECONDS = 30
+MAX_VIDEO_FRAMES = 8
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
+ALLOWED_VIDEO_TYPES = {"video/mp4": ".mp4", "video/quicktime": ".mov", "video/webm": ".webm"}
 
 app = FastAPI(
     title="Virtual Audience Simulation for Meta Ads Creatives",
@@ -83,7 +90,12 @@ def format_specific_checks(data: dict[str, str], image_attached: bool = False, i
     """Return transparent, type-specific checklist prompts without claiming unperformed inspection."""
     kind = data.get("creative_type", "").lower()
     checks: dict[str, Any] = {"selected_format": data.get("creative_type", "Not provided"), "scope": "Checklist guidance from supplied text and selected format; not a substitute for inspecting unavailable media."}
-    if any(term in kind for term in ("static image", "image ad", "product hero", "infographic", "before-and-after", "review or rating image")):
+    if "video" in kind:
+        checks["review_points"] = ["Review sampled frames for immediate relevance", "Check product/brand visibility and visual continuity", "Review readable on-screen text in sampled frames", "Check that the final CTA appears in the supplied footage"]
+        checks["media_scope"] = data.get("video_review_scope", "Video frame scope was not provided.")
+        checks["audio_notice"] = "Audio, voice-over, music, subtitles and continuous motion are not analyzed by this frame-sampling pipeline."
+        checks["visual"] = "Sampled still frames were sent to the configured vision provider." if image_inspected else "Frames can be sampled locally, but no AI visual interpretation is available without a configured provider."
+    elif any(term in kind for term in ("static image", "image ad", "product hero", "infographic", "before-and-after", "review or rating image")):
         checks["visual"] = ("Image was supplied to a configured vision-capable provider; review its returned observations." if image_attached and image_inspected else "Image attached but not visually inspected in local mode; composition, contrast, legibility, product visibility, and branding remain unverified." if image_attached else "No image supplied; visual composition, contrast, legibility, product visibility, and branding cannot be verified.")
         checks["review_points"] = ["One dominant message and clear visual hierarchy", "Readable text at mobile size", "Product/service and branding are recognizable", "Claims, comparisons, and before/after depictions are substantiated"]
     elif "carousel" in kind:
@@ -222,7 +234,7 @@ def heuristic_report(data: dict[str, str], image_attached: bool, image_inspected
     return report
 
 
-def _call_vision_model(data: dict[str, str], image_bytes: bytes | None, image_type: str | None) -> dict[str, Any]:
+def _call_vision_model(data: dict[str, str], image_bytes: bytes | None, image_type: str | None, additional_images: list[bytes] | None = None) -> dict[str, Any]:
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("No API key configured; using local heuristic mode.")
@@ -251,6 +263,11 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
     if image_bytes is not None and image_type is not None:
         encoded = base64.b64encode(image_bytes).decode("ascii")
         content.append({"type": "image_url", "image_url": {"url": f"data:{image_type};base64,{encoded}"}})
+    for frame in (additional_images or [])[:MAX_VIDEO_FRAMES]:
+        encoded = base64.b64encode(frame).decode("ascii")
+        content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded}"}})
+    if additional_images:
+        content.insert(0, {"type": "text", "text": f"VIDEO FRAME REVIEW: inspect up to {len(additional_images[:MAX_VIDEO_FRAMES])} sampled still frames from the first {MAX_VIDEO_SECONDS} seconds only. Do not claim to analyze audio, continuous motion, or unsupplied frames."})
     body = {
         "model": model,
         "temperature": 0.2,
@@ -287,7 +304,7 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
     for key in ("heading", "ad_copy", "offer", "cta"):
         report["components"].setdefault(key, user_payload.get(key, "Not provided"))
     report["simulation_notice"] = "AI-generated simulated assessment only. These are hypotheses, not actual Meta Ads results or validated performance predictions."
-    report["visual_review_notice"] = "Image submitted to the configured AI provider for visual review." if image_bytes else "No image was supplied."
+    report["visual_review_notice"] = "Image submitted to the configured AI provider for visual review." if image_bytes else ("Video still frames submitted to the configured AI provider for visual review; audio and continuous motion were not analyzed." if additional_images else "No image was supplied.")
     report["format_specific_checks"] = format_specific_checks(data, image_attached=image_bytes is not None, image_inspected=image_bytes is not None)
     if "video" in data.get("creative_type", "").lower() or "script" in data.get("creative_type", "").lower() or "ugc" in data.get("creative_type", "").lower():
         report["video_script_checks"] = {
@@ -305,6 +322,33 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
     report.setdefault("audience_responses", [])
     report.setdefault("action_plan", [])
     return report
+
+
+def _extract_video_frames(video_bytes: bytes, extension: str) -> list[bytes]:
+    """Extract up to eight still frames from the first 30 seconds of a local video."""
+    with tempfile.TemporaryDirectory(prefix="vas-video-") as directory:
+        source = Path(directory) / ("input" + extension)
+        pattern = str(Path(directory) / "frame_%02d.jpg")
+        source.write_bytes(video_bytes)
+        command = [
+            imageio_ffmpeg.get_ffmpeg_exe(),
+            "-nostdin", "-hide_banner", "-loglevel", "error",
+            "-protocol_whitelist", "file,pipe",
+            "-threads", "1", "-i", str(source),
+            "-t", str(MAX_VIDEO_SECONDS),
+            "-vf", "fps=1/4,scale=768:-2",
+            "-frames:v", str(MAX_VIDEO_FRAMES), "-q:v", "4", pattern,
+        ]
+        try:
+            result = subprocess.run(command, capture_output=True, timeout=25, check=False)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise HTTPException(status_code=422, detail="Video frame extraction failed or timed out. Try a shorter MP4, MOV, or WebM file.") from exc
+        if result.returncode != 0:
+            raise HTTPException(status_code=415, detail="The uploaded video could not be decoded. Try a valid MP4, MOV, or WebM file.")
+        frames = sorted(Path(directory).glob("frame_*.jpg"))
+        if not frames:
+            raise HTTPException(status_code=415, detail="No readable video frames were found in the first 30 seconds.")
+        return [frame.read_bytes() for frame in frames[:MAX_VIDEO_FRAMES]]
 
 
 @app.post("/api/analyze")
@@ -333,49 +377,59 @@ async def analyze(
     }
     image_bytes = None
     image_type = None
+    video_frames: list[bytes] = []
+    video_uploaded = False
     if creative_file and creative_file.filename:
-        image_type = (creative_file.content_type or "").lower()
-        if image_type.startswith("video/"):
-            raise HTTPException(status_code=415, detail="Video upload is not supported in this MVP. You can currently analyze ad copy and JPEG, PNG, or WebP images. Video analysis is a planned next step.")
-        if image_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(status_code=415, detail="Unsupported file type. Upload a JPEG, PNG, or WebP image.")
-        image_bytes = await creative_file.read(MAX_IMAGE_BYTES + 1)
-        if len(image_bytes) > MAX_IMAGE_BYTES:
-            raise HTTPException(status_code=413, detail="Image is larger than the 8 MB limit.")
-        if not image_bytes:
-            image_bytes = None
+        upload_type = (creative_file.content_type or "").lower()
+        if upload_type.startswith("video/"):
+            if upload_type not in ALLOWED_VIDEO_TYPES:
+                raise HTTPException(status_code=415, detail="Unsupported video type. Upload MP4, MOV, or WebM.")
+            video_bytes = await creative_file.read(MAX_VIDEO_BYTES + 1)
+            if len(video_bytes) > MAX_VIDEO_BYTES:
+                raise HTTPException(status_code=413, detail="Video is larger than the 25 MB limit.")
+            if not video_bytes:
+                raise HTTPException(status_code=400, detail="The uploaded video is empty.")
+            video_frames = _extract_video_frames(video_bytes, ALLOWED_VIDEO_TYPES[upload_type])
+            video_uploaded = True
+            data["video_review_scope"] = f"Up to {len(video_frames)} sampled still frames from the first {MAX_VIDEO_SECONDS} seconds were extracted. Audio and continuous motion are not analyzed."
         else:
-            # Use bytes.fromhex for binary signatures to avoid accidental escaping bugs.
-            valid_signature = (
-                (image_type == "image/jpeg" and image_bytes.startswith(bytes.fromhex("FFD8FF")))
-                or (image_type == "image/png" and image_bytes.startswith(bytes.fromhex("89504E470D0A1A0A")))
-                or (image_type == "image/webp" and image_bytes.startswith(b"RIFF") and image_bytes[8:12] == b"WEBP")
-            )
-            if not valid_signature:
-                raise HTTPException(status_code=415, detail="The file contents do not match the selected image type. Please upload a valid JPEG, PNG, or WebP image.")
-
-            # Verify the image can actually be decoded; a matching header alone is insufficient.
-            expected_format = {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}[image_type]
-            try:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("error", Image.DecompressionBombWarning)
-                    with Image.open(io.BytesIO(image_bytes)) as image:
-                        if image.format != expected_format:
-                            raise HTTPException(status_code=415, detail="The image encoding does not match the declared file type.")
-                        if image.width * image.height > MAX_IMAGE_PIXELS:
-                            raise HTTPException(status_code=413, detail="Image dimensions exceed the 25-megapixel safety limit.")
-                        image.verify()
-            except HTTPException:
-                raise
-            except (UnidentifiedImageError, OSError, Image.DecompressionBombError, Image.DecompressionBombWarning, ValueError) as exc:
-                raise HTTPException(status_code=415, detail="The uploaded file is not a valid, safely decodable image.") from exc
+            image_type = upload_type
+            if image_type not in ALLOWED_IMAGE_TYPES:
+                raise HTTPException(status_code=415, detail="Unsupported file type. Upload a JPEG, PNG, WebP image, or supported video.")
+            image_bytes = await creative_file.read(MAX_IMAGE_BYTES + 1)
+            if len(image_bytes) > MAX_IMAGE_BYTES:
+                raise HTTPException(status_code=413, detail="Image is larger than the 8 MB limit.")
+            if not image_bytes:
+                image_bytes = None
+            else:
+                valid_signature = (
+                    (image_type == "image/jpeg" and image_bytes.startswith(bytes.fromhex("FFD8FF")))
+                    or (image_type == "image/png" and image_bytes.startswith(bytes.fromhex("89504E470D0A1A0A")))
+                    or (image_type == "image/webp" and image_bytes.startswith(b"RIFF") and image_bytes[8:12] == b"WEBP")
+                )
+                if not valid_signature:
+                    raise HTTPException(status_code=415, detail="The file contents do not match the selected image type. Please upload a valid JPEG, PNG, or WebP image.")
+                expected_format = {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}[image_type]
+                try:
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("error", Image.DecompressionBombWarning)
+                        with Image.open(io.BytesIO(image_bytes)) as image:
+                            if image.format != expected_format:
+                                raise HTTPException(status_code=415, detail="The image encoding does not match the declared file type.")
+                            if image.width * image.height > MAX_IMAGE_PIXELS:
+                                raise HTTPException(status_code=413, detail="Image dimensions exceed the 25-megapixel safety limit.")
+                            image.verify()
+                except HTTPException:
+                    raise
+                except (UnidentifiedImageError, OSError, Image.DecompressionBombError, Image.DecompressionBombWarning, ValueError) as exc:
+                    raise HTTPException(status_code=415, detail="The uploaded file is not a valid, safely decodable image.") from exc
 
     strategy_context = build_strategy_context(data)
     model_context = {key: value for key, value in strategy_context.items() if key != "system_prompt_excerpt"}
     data["strategy_context_json"] = json.dumps(model_context, ensure_ascii=False)
     try:
         if os.getenv("OPENAI_API_KEY", "").strip():
-            report = _call_vision_model(data, image_bytes, image_type)
+            report = _call_vision_model(data, image_bytes, image_type, additional_images=video_frames)
             report["analysis_mode"] = "configured_ai"
         else:
             report = heuristic_report(data, image_attached=image_bytes is not None)
@@ -385,6 +439,12 @@ async def analyze(
         report["analysis_mode"] = "local_heuristic"
         report["provider_note"] = str(exc)
     report = enrich_report(report, strategy_context, data, ai_generated=report.get("analysis_mode") == "configured_ai")
+    if video_uploaded:
+        if report.get("analysis_mode") == "configured_ai":
+            report["video_review_notice"] = data["video_review_scope"] + " A configured vision-capable provider reviewed sampled still frames; audio and continuous motion were not analyzed."
+        else:
+            report["video_review_notice"] = data["video_review_scope"] + " Frames were sampled locally but not interpreted by AI because no compatible provider is configured. Audio and continuous motion were not analyzed."
+        report["visual_review_notice"] = report["video_review_notice"]
     return report
 
 
