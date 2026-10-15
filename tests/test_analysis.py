@@ -61,3 +61,35 @@ def test_unsupported_file_type_is_rejected():
         files={"creative_file": ("sample.txt", b"hello", "text/plain")},
     )
     assert response.status_code == 415
+
+
+
+def test_optimize_endpoint_returns_safe_local_guidance_without_api_key(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    response = client.post(
+        "/api/optimize",
+        data={
+            "creative_type": "Static Image",
+            "heading": "A smarter workflow",
+            "ad_copy": "Try our service to simplify your work.",
+            "offer": "",
+            "cta": "",
+            "objective": "Leads",
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["mode"] == "local_guidance"
+    assert body["optimized_creative"]["heading"] == "A smarter workflow"
+    assert body["optimized_creative"]["offer"].startswith("Not provided")
+    assert body["optimized_creative"]["cta"] == "Get a Quote"
+    assert "performance guarantee" in body["notice"]
+
+
+def test_analysis_marks_missing_fields_and_does_not_claim_live_results():
+    response = client.post("/api/analyze", data={"creative_type": "Static Image"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["components"]["heading"] == "Not provided"
+    assert "not an AI audience panel" in body["simulation_notice"]
+    assert body["simulated_performance"]["conversion_rate"] == "Not enough information for a defensible estimate"
