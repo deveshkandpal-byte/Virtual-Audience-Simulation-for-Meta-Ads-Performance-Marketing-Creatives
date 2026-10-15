@@ -191,3 +191,15 @@ The app is an early MVP, not a finished production service. AI-assisted mode dep
 - Hardened image upload handling to verify actual decodability and declared format with Pillow, enforce an 8 MB upload limit, and reject images above 25 megapixels.
 - Added tests for valid PNG/JPEG uploads, header-only fake images, upload size limits, and pixel limits.
 - These changes improve local usability and input validation; they do not implement direct video/audio analysis, image generation, or a validated predictive audience model.
+
+
+## Strategy automation and media review follow-up — 2026-10-15
+
+- Added `app/industry_strategies.json` and `docs/INDUSTRY_STRATEGY_PLAYBOOK.md` with industry-specific starting hypotheses for creative formats, hooks/messaging, CTAs, offer tests and guardrails.
+- Added `prompts/SYSTEM_PROMPT.md`, `prompts/AGENT_ROLES.md`, and `skills/industry-strategy/SKILL.md`. The current app orchestrates logical review roles in one model call; these are not separate autonomous runtime agents.
+- Integrated automatic industry classification, a safe public-HTTPS landing-page static-text fetch, message-overlap hints, risk flags, evidence gaps, strategy recommendations, and a controlled test plan into each report.
+- Added an optional industry field and rendered report sections for industry strategy, landing-page review, creative concepts, risk flags and evidence gaps.
+- Added MP4/MOV/WebM upload (25 MB max) with bounded extraction of up to eight still frames from the first 30 seconds. A configured vision-capable provider may interpret those frames; audio, continuous motion and retention are not analyzed.
+- Added tests for industry strategy, unsafe URL rejection, report enrichment and video-upload fallback behavior.
+- Repository visibility is currently reported as **public** by GitHub metadata.
+- Remaining gaps: multi-image carousel sequence upload, audio/subtitle transcription, full motion/retention analysis, generated visual assets, a validated historical-campaign prediction model, real human audience experiments, and Meta Ads Manager publishing.
