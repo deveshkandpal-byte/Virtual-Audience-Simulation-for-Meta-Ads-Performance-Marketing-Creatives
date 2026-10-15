@@ -135,7 +135,8 @@ GitHub Actions also runs the test suite when changes are pushed to `main` or a p
 3. Add multi-creative comparison and exportable comparison reports.
 4. Add supported video analysis only after choosing and testing a suitable provider.
 5. Add visual asset generation as a separate, reviewable workflow.
-6. Consider numerical performance estimation only after obtaining permitted historical campaign data and validating the model on held-out data.
+6. Improve report-schema validation and provider-failure tests.
+7. Consider numerical performance estimation only after obtaining permitted historical campaign data and validating the model on held-out data.
 
 ## Project status
 
