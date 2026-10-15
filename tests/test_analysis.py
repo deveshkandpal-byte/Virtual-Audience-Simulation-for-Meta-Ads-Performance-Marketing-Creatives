@@ -93,3 +93,14 @@ def test_analysis_marks_missing_fields_and_does_not_claim_live_results():
     assert body["components"]["heading"] == "Not provided"
     assert "not an AI audience panel" in body["simulation_notice"]
     assert body["simulated_performance"]["conversion_rate"] == "Not enough information for a defensible estimate"
+
+
+
+def test_image_with_mismatched_content_signature_is_rejected():
+    response = client.post(
+        "/api/analyze",
+        data={"creative_type": "Static Image"},
+        files={"creative_file": ("fake.png", b"this is not a PNG", "image/png")},
+    )
+    assert response.status_code == 415
+    assert "contents do not match" in response.json()["detail"]
