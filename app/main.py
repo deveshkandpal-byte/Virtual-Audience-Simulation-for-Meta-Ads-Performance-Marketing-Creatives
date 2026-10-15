@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -10,7 +11,8 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from starlette.requests import Request
 from fastapi.staticfiles import StaticFiles
 
 ROOT = Path(__file__).resolve().parent
@@ -23,6 +25,36 @@ app = FastAPI(
     version="0.1.0",
 )
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
+
+# Best-effort per-process throttle for a small public demo. For production, use a
+# shared rate-limit store and a reverse proxy/WAF; this memory store resets on restart.
+_RATE_WINDOW_SECONDS = 60
+_RATE_LIMIT_PER_MINUTE = 30
+_request_times: dict[str, list[float]] = {}
+
+
+@app.middleware("http")
+async def basic_demo_rate_limit(request: Request, call_next):
+    if request.url.path not in {"/api/analyze", "/api/optimize", "/api/compare"}:
+        return await call_next(request)
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.monotonic()
+    recent = [stamp for stamp in _request_times.get(client_ip, []) if now - stamp < _RATE_WINDOW_SECONDS]
+    if len(recent) >= _RATE_LIMIT_PER_MINUTE:
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Demo rate limit reached. Please wait a minute and try again."},
+            headers={"Retry-After": "60"},
+        )
+    recent.append(now)
+    _request_times[client_ip] = recent
+    # Opportunistically discard inactive entries so the demo does not retain old IPs forever.
+    if len(_request_times) > 1000:
+        for ip in list(_request_times):
+            if not _request_times[ip] or now - _request_times[ip][-1] >= _RATE_WINDOW_SECONDS:
+                _request_times.pop(ip, None)
+    return await call_next(request)
+
 
 
 @app.get("/", include_in_schema=False)
