@@ -15,6 +15,7 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 - Automatic report enrichment with industry strategy, landing-page review, risk flags, evidence gaps, copy concept templates, and an objective-aligned test plan.
 - Reusable system prompt, logical agent role instructions, and a separate industry-strategy skill.
 - Creative review for supplied copy and JPEG, PNG, or WebP images (maximum 8 MB, validated image decoding, and a 25-megapixel pixel limit).
+- MP4, MOV and WebM video upload up to 25 MB, with up to eight still frames sampled from the first 30 seconds. A configured vision-capable provider can interpret sampled frames; audio and continuous motion are not analyzed.
 - A creative-type selector covering the full format/concept taxonomy in the Master Prompt, including static images, video concepts, UGC, carousels, collection/catalog, social proof, comparison/education, promotion/conversion, storytelling, and industry-specific styles.
 - Format-specific checklists for image, video-script, carousel, catalog, testimonial/social-proof, educational/comparison, promotional, storytelling, and industry-style concepts. Checklists clearly disclose missing media or evidence.
 - Structured report with the Master Prompt's core fields: creative type, components, simulated performance labels, strengths, weaknesses, recommended modifications, and overall assessment.
