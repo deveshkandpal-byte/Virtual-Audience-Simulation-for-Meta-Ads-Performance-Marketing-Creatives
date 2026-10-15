@@ -9,7 +9,7 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 ## Current MVP capabilities
 
 - Campaign context: objective, audience, offer, CTA, and destination.
-- Creative review for supplied copy and JPEG, PNG, or WebP images (maximum 8 MB).
+- Creative review for supplied copy and JPEG, PNG, or WebP images (maximum 8 MB, validated image decoding, and a 25-megapixel pixel limit).
 - A creative-type selector covering the full format/concept taxonomy in the Master Prompt, including static images, video concepts, UGC, carousels, collection/catalog, social proof, comparison/education, promotion/conversion, storytelling, and industry-specific styles.
 - Format-specific checklists for image, video-script, carousel, catalog, testimonial/social-proof, educational/comparison, promotional, storytelling, and industry-style concepts. Checklists clearly disclose missing media or evidence.
 - Structured report with the Master Prompt's core fields: creative type, components, simulated performance labels, strengths, weaknesses, recommended modifications, and overall assessment.
