@@ -131,3 +131,24 @@ def test_comparison_endpoint_returns_individual_reports_and_disclaimer():
 def test_comparison_requires_at_least_two_creatives():
     response = client.post("/api/compare", json={"creatives": [{"name": "Only one"}]})
     assert response.status_code == 422
+
+
+
+def test_video_script_review_is_labeled_as_script_only():
+    report = heuristic_report(
+        {
+            "creative_type": "Video — Concept / Script Review (no video upload)",
+            "heading": "Stop scrolling",
+            "ad_copy": "Stop scrolling. See how the product works. Scene: show the package. End with a clear CTA.",
+            "offer": "Not provided",
+            "cta": "Learn More",
+            "objective": "Sales",
+            "audience": "Food delivery customers",
+            "destination": "Website",
+        },
+        image_attached=False,
+    )
+    assert report["video_script_checks"]["scope"].startswith("Script/concept only")
+    assert "actual viewer retention is not measured" in report["video_script_checks"]["first_3_seconds"]
+    assert report["video_script_checks"]["closing_cta"] == "Learn More"
+    assert len(report["video_script_checks"]["recommended_checks"]) >= 3
