@@ -30,6 +30,10 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 
 These are potential future phases, not current features. The app must not describe simulated labels as actual campaign results.
 
+## Local installation on any computer
+
+For the full beginner-friendly Windows, macOS, Linux, and Docker instructions, open [LOCAL_SETUP.md](LOCAL_SETUP.md). Windows users can use the one-click scripts below. The Docker Compose setup binds to `127.0.0.1` so it is not intentionally exposed to the local network.
+
 ## Quick start on Windows (beginner guide)
 
 For the simplest setup, download the repository ZIP and extract it. Double-click **`install_windows.bat`** once to install dependencies, then double-click **`run_windows.bat`** whenever you want to start the app. The app opens at `http://127.0.0.1:8000`; keep its terminal window open while using it. If Windows blocks a script, follow the manual commands below.
