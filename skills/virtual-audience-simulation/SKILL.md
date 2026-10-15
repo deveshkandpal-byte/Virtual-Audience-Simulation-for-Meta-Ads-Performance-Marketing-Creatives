@@ -9,9 +9,11 @@ description: Review Meta Ads creative concepts and variants using the project's 
 
 Use this skill to perform a structured pre-launch review of Meta/Facebook/Instagram ad creatives. It can guide a human or AI agent through the review process. It is not a real audience panel, does not access Meta Ads account data, and does not establish actual CTR, conversion rate, ROAS, or guaranteed outcomes.
 
-Before analysis, read the repository's `docs/CREATIVE_TYPE_LIBRARY.md` for the complete creative-format, concept, and execution-style taxonomy.
+Before analysis, read `docs/CREATIVE_TYPE_LIBRARY.md` for the complete creative-format taxonomy and `docs/INDUSTRY_STRATEGY_PLAYBOOK.md` plus `app/industry_strategies.json` for industry-specific strategy guidance. Follow `prompts/SYSTEM_PROMPT.md` and `prompts/AGENT_ROLES.md` where supported.
 
 ## Workflow
+
+0. Apply industry strategy based on explicit industry input or supplied campaign/landing-page evidence. Include classification confidence, suggested formats, message angles, CTA/offer tests, risk flags and evidence gaps. If uncertain, use general strategy. See `skills/industry-strategy/SKILL.md`.
 
 1. Identify the product/service, market, campaign objective, target audience, funnel stage, offer, CTA, and destination. Mark missing facts as `Not provided`; ask only for essential missing information.
 2. Identify all relevant formats/concepts from the creative-type library. Formats may be combined; do not force irrelevant types or assume one format always wins.
