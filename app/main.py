@@ -305,13 +305,14 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
         report["components"].setdefault(key, user_payload.get(key, "Not provided"))
     report["simulation_notice"] = "AI-generated simulated assessment only. These are hypotheses, not actual Meta Ads results or validated performance predictions."
     report["visual_review_notice"] = "Image submitted to the configured AI provider for visual review." if image_bytes else ("Video still frames submitted to the configured AI provider for visual review; audio and continuous motion were not analyzed." if additional_images else "No image was supplied.")
-    report["format_specific_checks"] = format_specific_checks(data, image_attached=image_bytes is not None, image_inspected=image_bytes is not None)
+    media_inspected = image_bytes is not None or bool(additional_images)
+    report["format_specific_checks"] = format_specific_checks(data, image_attached=media_inspected, image_inspected=media_inspected)
     if "video" in data.get("creative_type", "").lower() or "script" in data.get("creative_type", "").lower() or "ugc" in data.get("creative_type", "").lower():
         report["video_script_checks"] = {
-            "scope": "Script/concept only; no video file or audio track was analyzed.",
-            "first_3_seconds": "Review the supplied opening line and concept as a hypothesis; actual viewer retention is not measured.",
-            "pacing": "No rendered video timing is available from text input alone.",
-            "audio_and_subtitles": "Verify voice-over clarity, sound mix, subtitle accuracy, and mobile readability in the final edit.",
+            "scope": (data.get("video_review_scope", "Video still-frame review") + " Audio and continuous motion were not analyzed.") if additional_images else "Script/concept only; no video frames were supplied for visual review.",
+            "first_3_seconds": "Review the supplied opening line and sampled opening frames as hypotheses; actual viewer retention is not measured.",
+            "pacing": "Frame sampling does not measure continuous motion, edit rhythm or retention.",
+            "audio_and_subtitles": "Audio, voice-over, sound mix and subtitle accuracy are not analyzed by the current pipeline; verify them in the final edit.",
             "closing_cta": data.get("cta", "").strip() or "Not provided",
         }
     report.setdefault("context", {
