@@ -97,6 +97,27 @@ def heuristic_report(data: dict[str, str], image_attached: bool, image_inspected
     if not mods:
         mods.append({"component": "audience_fit", "suggestion": "Test a second hook or message angle while keeping audience, offer, and objective consistent."})
 
+    creative_type_text = data.get("creative_type", "").lower()
+    video_checks = None
+    if "video" in creative_type_text or "script" in creative_type_text or "ugc" in creative_type_text:
+        script_words = ad_copy.split() if ad_copy != "Not provided" else []
+        first_sentence = re.split(r"(?<=[.!?])\\s+", ad_copy)[0] if script_words else "Not provided"
+        video_checks = {
+            "scope": "Script/concept only; no video file, frame sequence, or audio track was analyzed.",
+            "opening_hook": "Review manually: " + (first_sentence[:240] if first_sentence != "Not provided" else "Not provided — add the opening line or first 3-second hook."),
+            "first_3_seconds": "A script-only review cannot verify visual motion, sound, or actual viewer retention. Put the clearest hook or visual promise first, then test it.",
+            "pacing": "Script length is approximately " + str(len(script_words)) + " words. This is a rough script-length indicator, not a measured speaking duration or retention estimate.",
+            "visual_direction": "Not provided" if not re.search(r"\\b(scene|shot|close-up|cut to|show|visual|b-roll|unboxing|on screen)\\b", ad_copy, re.I) else "Some visual directions appear in the supplied script; verify that the edit makes them clear.",
+            "audio_and_subtitles": "Not provided — specify voice-over/dialogue, sound design, and subtitle plan if relevant.",
+            "closing_cta": cta if cta != "Not provided" else "Not provided — specify the closing CTA and ensure it matches the destination.",
+            "recommended_checks": [
+                "Verify the first frame and first spoken line communicate one clear idea.",
+                "Check subtitle legibility and safe-area placement on mobile.",
+                "Confirm music, voice-over, and sound effects do not compete with the message.",
+                "Ensure the offer and final CTA remain readable long enough to understand.",
+            ],
+        }
+
     report = {
         "creative_type": data.get("creative_type", "Not provided"),
         "components": {"heading": heading, "ad_copy": ad_copy, "offer": offer, "cta": cta},
@@ -193,6 +214,14 @@ Never invent product facts, discounts, guarantees, testimonials, deadlines, or o
         report["components"].setdefault(key, user_payload.get(key, "Not provided"))
     report["simulation_notice"] = "AI-generated simulated assessment only. These are hypotheses, not actual Meta Ads results or validated performance predictions."
     report["visual_review_notice"] = "Image submitted to the configured AI provider for visual review." if image_bytes else "No image was supplied."
+    if "video" in data.get("creative_type", "").lower() or "script" in data.get("creative_type", "").lower() or "ugc" in data.get("creative_type", "").lower():
+        report["video_script_checks"] = {
+            "scope": "Script/concept only; no video file or audio track was analyzed.",
+            "first_3_seconds": "Review the supplied opening line and concept as a hypothesis; actual viewer retention is not measured.",
+            "pacing": "No rendered video timing is available from text input alone.",
+            "audio_and_subtitles": "Verify voice-over clarity, sound mix, subtitle accuracy, and mobile readability in the final edit.",
+            "closing_cta": data.get("cta", "").strip() or "Not provided",
+        }
     report.setdefault("context", {
         "campaign_objective": user_payload["campaign_objective"],
         "target_audience": user_payload["target_audience"],
