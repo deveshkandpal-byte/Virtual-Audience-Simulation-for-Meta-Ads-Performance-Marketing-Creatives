@@ -59,7 +59,7 @@ Open the extracted folder in File Explorer, click the address bar, type `cmd`, a
 Run these commands one at a time:
 
 ```bat
-py -3.11 -m venv .venv
+py -3 -m venv .venv
 .venv\Scripts\activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
