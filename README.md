@@ -1,46 +1,139 @@
-# Virtual-Audience-Simulation-for-Meta-Ads-Performance-Marketing-Creatives
-"Virtually tests Meta Ads creatives pre-launch, identifies flaws, suggests fixes, and auto-generates the optimized creatives for you."
-# 🎯 Virtual Audience Simulation & Auto-Optimizer for Meta Ads Creatives
+# Virtual Audience Simulation for Meta Ads Creatives
 
-Stop wasting ad budget on underperforming creatives. 
+A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and image creatives before a live campaign. It provides a structured report, audience-response hypotheses, prioritized recommendations, JSON export, and conservative copy-optimization suggestions.
 
-This tool virtually tests your Meta (Facebook/Instagram) Ads creatives *before* they go live. It doesn't just tell you what's wrong—it identifies specific flaws, suggests actionable changes, and **actually generates the fixed, optimized creatives for you** using Generative AI.
+> **Important limitation:** this is a pre-launch review assistant, not a real audience panel or a validated predictive model. It cannot guarantee CTR, conversions, or ROAS. With no API key configured, analysis uses basic local rules and copy optimization gives conservative guidance only.
 
-## 🚀 Core Capabilities
+## Current MVP capabilities
 
-### 1. 🧪 Virtual Pre-Launch Testing
-Simulate how your target audience will react to your ad creative. Predict engagement, drop-off rates, and conversion probability without spending a single rupee on actual ads.
+- Campaign context: objective, audience, offer, CTA, and destination.
+- Creative review for supplied copy and JPEG, PNG, or WebP images (maximum 8 MB).
+- Structured report with the Master Prompt's core fields: creative type, components, simulated performance labels, strengths, weaknesses, recommended modifications, and overall assessment.
+- Audience-response hypotheses and a prioritized action plan.
+- Copy optimization suggestions. A configured OpenAI-compatible API can generate AI-assisted copy suggestions; without one, the app returns local guidance.
+- Copy or download the report as JSON.
+- Health endpoint at `/health`, automated tests, and GitHub Actions CI.
 
-### 2. 🔍 Flaw Identification & Diagnostics
-Pinpoints exactly what is killing your ad's performance. Whether it's a weak 3-second hook, poor visual hierarchy, confusing copy, or a weak Call-To-Action (CTA), the AI breaks down the flaws.
+## Not implemented yet
 
-### 3. 💡 Actionable Recommendations
-Provides clear, step-by-step instructions on what needs to be changed to improve the creative's performance score.
+- Direct video upload or video-frame/audio analysis.
+- Actual virtual human participants, eye-tracking, or measured audience experiments.
+- A predictive model trained and validated on historical Meta Ads campaign data.
+- Visual asset generation or automatic image/video editing.
+- Direct publishing or export into Meta Ads Manager.
+- Multi-creative batch comparison.
 
-### 4. 🪄 Auto-Fix & Generative Remediation (The Game Changer!)
-Don't want to make the changes manually? The tool will do it for you. 
-- **Copy:** Automatically rewrites weak ad copy, hooks, and CTAs.
-- **Visuals:** Suggests or generates improved visual layouts, text overlays, and image variations.
-- **Video:** Recommends pacing changes or generates new thumbnail/hook variations.
+These are potential future phases, not current features. The app must not describe simulated labels as actual campaign results.
 
-## 🔄 How It Works
-1. **Upload:** Drop your ad creative (Image, Video, or just Ad Copy).
-2. **Simulate:** The engine runs it through a virtual audience simulation based on your target demographics.
-3. **Diagnose:** Get a detailed breakdown of flaws and a "Performance Score".
-4. **Auto-Fix:** Click "Generate Fixes" to let the AI rewrite the copy and suggest/generate the improved visual assets.
-5. **Export:** Download the optimized creatives directly to your Meta Ads Manager.
+## Run on Windows (beginner guide)
 
-## 🛠️ Tech Stack (Example - Adjust as per your actual stack)
-- **Simulation & Scoring:** Predictive ML Models trained on historical Meta Ads data.
-- **Diagnostics & Copywriting:** LLMs (GPT-4 / Claude) for deep copy analysis and rewriting.
-- **Visual Auto-Fix:** Generative AI (Midjourney API / Stable Diffusion / DALL-E) for image variations and layout suggestions.
-- **Backend:** Python (FastAPI)
-- **Frontend:** Next.js / React
+You only need to do these steps once to set up the project. You do **not** need to know how to write code to follow them.
 
-## 🎯 Why Use This?
-- **Save Money:** Find out if an ad will flop before you fund it.
-- **Save Time:** Skip the manual brainstorming and redesigning. The AI does the heavy lifting.
-- **Maximize ROAS:** Launch only the highest-converting, AI-optimized creatives.
+### 1. Install Python
 
----
-*Built for performance marketers who want to test, fix, and launch faster.*
+Install Python 3.11 or newer from [python.org](https://www.python.org/downloads/). During installation, tick **Add Python to PATH** if the installer offers that option.
+
+### 2. Download this project
+
+On this GitHub page, click **Code → Download ZIP**, then extract the ZIP to a folder you can find easily, such as your Desktop.
+
+### 3. Open Command Prompt in the project folder
+
+Open the extracted folder in File Explorer, click the address bar, type `cmd`, and press Enter.
+
+### 4. Create a virtual environment and install dependencies
+
+Run these commands one at a time:
+
+```bat
+py -3.11 -m venv .venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+If the first command fails, confirm Python 3.11+ is installed and available in PATH.
+
+### 5. Start the application
+
+```bat
+uvicorn app.main:app --reload
+```
+
+Keep that Command Prompt window open while using the app.
+
+### 6. Open the app
+
+Visit [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser. To check that the backend is running, open [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health).
+
+To stop the app, return to Command Prompt and press **Ctrl+C**.
+
+## Optional: enable AI-assisted review
+
+The app can use an OpenAI-compatible chat-completions API for text analysis and image review. This requires a valid provider API key and may incur provider charges. The API key is **not** included in this repository.
+
+1. Create a local file named `.env` based on `.env.example`.
+2. Add your own key and, if needed, provider base URL and model.
+3. Keep `.env` private. Never commit it to GitHub or share it in screenshots.
+
+The application does not automatically load `.env` files. Before starting the app in Windows Command Prompt, set the variables in that same terminal session:
+
+```bat
+set OPENAI_API_KEY=your_key_here
+set OPENAI_BASE_URL=https://api.openai.com/v1
+set OPENAI_MODEL=gpt-4o-mini
+uvicorn app.main:app --reload
+```
+
+Replace `your_key_here` with your own secret. Do not paste it into public issues, chat messages, or source files. Check your provider's model and image-input support before use. If you do not configure a provider, the app still runs in local heuristic mode.
+
+## Using the app
+
+1. Select the creative format and campaign objective.
+2. Enter any known heading/hook, ad copy or script, offer, CTA, destination, and target audience.
+3. Optionally attach a JPEG, PNG, or WebP image.
+4. Select **Analyze this creative**.
+5. Review strengths, weaknesses, audience-response hypotheses, and the prioritized action plan.
+6. Select **Generate copy fixes** for alternative copy guidance.
+7. Copy or download the structured JSON report.
+
+You can leave fields blank. Missing components should be reported as **Not provided** rather than invented. Video files are not supported in this MVP; for now, paste the video script or describe the concept in the text fields.
+
+## Run the tests
+
+From the project folder, with the virtual environment activated:
+
+```bat
+python -m pytest -q
+```
+
+GitHub Actions also runs the test suite when changes are pushed to `main` or a pull request targets `main`.
+
+## Privacy and safety notes
+
+- Uploaded images are processed in memory by the application; this MVP does not intentionally save them to a user-upload directory.
+- If an AI provider is configured, the submitted campaign text and attached image may be sent to that provider for processing. Review the provider's data policy before using sensitive client material.
+- Do not submit secrets, private customer information, or campaign information you are not authorized to share.
+- File extensions and browser-provided MIME types are not a complete security boundary. Do not expose an unreviewed development instance publicly.
+- Use only substantiated claims, genuine testimonials, and confirmed offers in ad copy.
+
+## Technology
+
+- Python 3.11
+- FastAPI and Uvicorn
+- Plain HTML, CSS, and JavaScript frontend
+- Pytest and FastAPI TestClient
+- Optional OpenAI-compatible API configuration
+
+## Roadmap
+
+1. Strengthen input validation and report-schema checks.
+2. Improve creative-type-specific analysis and add test coverage.
+3. Add multi-creative comparison and exportable comparison reports.
+4. Add supported video analysis only after choosing and testing a suitable provider.
+5. Add visual asset generation as a separate, reviewable workflow.
+6. Consider numerical performance estimation only after obtaining permitted historical campaign data and validating the model on held-out data.
+
+## Project status
+
+**Early MVP under active development.** The audit report is available in [AUDIT.md](AUDIT.md). Validate all suggestions and test promising variants with controlled live campaigns before making budget decisions.
