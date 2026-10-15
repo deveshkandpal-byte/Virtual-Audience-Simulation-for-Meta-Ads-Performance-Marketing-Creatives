@@ -1,5 +1,7 @@
 # Virtual Audience Simulation for Meta Ads Creatives
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/deveshkandpal-byte/Virtual-Audience-Simulation-for-Meta-Ads-Performance-Marketing-Creatives)
+
 A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and image creatives before a live campaign. It provides a structured report, audience-response hypotheses, prioritized recommendations, JSON export, and conservative copy-optimization suggestions.
 
 > **Important limitation:** this is a pre-launch review assistant, not a real audience panel or a validated predictive model. It cannot guarantee CTR, conversions, or ROAS. With no API key configured, analysis uses basic local rules and copy optimization gives conservative guidance only.
