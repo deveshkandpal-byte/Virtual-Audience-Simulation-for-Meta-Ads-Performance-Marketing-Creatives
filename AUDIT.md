@@ -103,3 +103,34 @@ The README describes virtual audience simulation, creative diagnostics, AI-gener
 - Outputs explicitly distinguish simulation from measured ad performance.
 - Failures are surfaced safely and do not expose secrets or uploaded files.
 - Automated tests and CI pass.
+
+
+## Master Prompt compliance audit
+
+The shared Master Prompt was retrieved from the conversation's uploaded text file and used as the product requirements baseline. Because the repository contains no implementation, the items below are **unimplemented/unverifiable**, not passing features.
+
+| Master Prompt requirement | Repository evidence | Audit status |
+|---|---|---|
+| Relevant creative-type coverage across static, video, UGC, carousel, catalog, social proof, educational, promotional, storytelling, and industry-specific ads | README lists intended formats at a high level; no executable selection or evaluation logic | Unverified |
+| Component analysis for heading, ad copy, offer, CTA, visual, hook, structure, trust signals, audience fit, and destination | No source code | Not implemented / unverifiable |
+| Audience segments and funnel-stage-aware responses | No source code or audience schema | Not implemented / unverifiable |
+| Identify positive reactions, confusion, skepticism, objections, strengths, and weaknesses | No simulation engine | Not implemented / unverifiable |
+| Engagement, CTR, and conversion-rate outputs with uncertainty and definitions | No metric implementation or model evidence | Not implemented; must not imply validated prediction |
+| Required per-creative JSON fields and valid JSON syntax | No schema, validator, or tests | Not implemented / unverifiable |
+| One report per creative plus comparative summary for multiple creatives | No orchestration or report code | Not implemented / unverifiable |
+| Prioritized action plan (Critical, High Impact, Testing Opportunities) | No report generation code | Not implemented / unverifiable |
+| Missing creative components shown as "Not provided"; do not invent facts, offers, testimonials, or guarantees | No input normalization or guardrails | Not implemented / unverifiable |
+| Launch-readiness labels and explicit simulation-vs-live-data disclaimer | README describes the concept, but no product UI/report implementation exists | Partially described only |
+| No universal assumption that a format always wins | No comparison logic or tests | Not implemented / unverifiable |
+| Single-creative and multi-creative acceptance tests | No test suite | Not implemented |
+| Privacy, safe uploads, secrets handling, and provider transparency | No implementation or policy files | Not implemented / unverifiable |
+
+### Requirements that should be made explicit in the first implementation
+
+1. **Typed input contract:** campaign objective, market, audience, funnel stage, creative type, supplied heading/copy/offer/CTA, destination details when available, and explicit missing-field handling.
+2. **Versioned output contract:** preserve the Master Prompt's required JSON keys and types; validate every generated response against a schema before returning it. Keep comparative summary and prioritized action plan outside the per-creative JSON objects as specified.
+3. **Truthfulness guardrails:** label qualitative ratings as simulated hypotheses; only provide numeric estimates when assumptions and a defensible basis are available. Never claim actual Meta Ads results or guaranteed ROAS.
+4. **Multi-creative fairness:** evaluate each creative individually first; keep campaign context consistent and identify the dimensions changed between variants. Do not force a winner when objectives or audiences differ.
+5. **Missing-data discipline:** preserve supplied components verbatim, mark absent fields as "Not provided", and never invent product facts, discounts, deadlines, testimonials, customer outcomes, or guarantees.
+6. **Testable acceptance suite:** cover static, video, carousel, and UGC examples; missing fields; unsupported media; invalid model JSON; provider timeout; single vs. multiple creatives; and the disclaimer/metric uncertainty requirements.
+
