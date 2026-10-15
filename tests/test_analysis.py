@@ -303,3 +303,20 @@ def test_general_industry_fallback_when_evidence_is_missing():
     result = build_strategy_context({"creative_type": "Static Image", "heading": "", "ad_copy": "", "offer": "", "cta": "", "destination": ""})
     assert result["industry_strategy"]["key"] == "other"
     assert result["landing_page_review"]["status"] == "not_fetched"
+
+
+def test_video_upload_runs_frame_review_pipeline_with_local_fallback(monkeypatch):
+    from app import main
+
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setattr(main, "_extract_video_frames", lambda video_bytes, extension: [_image_bytes("JPEG")])
+    response = client.post(
+        "/api/analyze",
+        data={"creative_type": "Video — Product demonstration", "objective": "Sales", "heading": "See it in action", "cta": "Learn More"},
+        files={"creative_file": ("sample.mp4", b"fake bytes handled by mocked extractor", "video/mp4")},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["analysis_mode"] == "local_heuristic"
+    assert "sampled locally but not interpreted by AI" in body["video_review_notice"]
+    assert body["format_specific_checks"]["media_scope"]
