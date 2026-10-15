@@ -175,7 +175,8 @@ def heuristic_report(data: dict[str, str], image_attached: bool, image_inspected
             {"priority": "Priority 3 — Testing Opportunities", "action": "Test one alternative hook or headline at a time; validate with a controlled live campaign."},
         ],
         "context": {"campaign_objective": objective, "target_audience": audience, "destination": destination},
-        "video_script_checks": video_checks,\n        "simulation_notice": "This is a local rule-based review, not an AI audience panel, trained predictive model, or actual Meta Ads result.",
+        "video_script_checks": video_checks,
+        "simulation_notice": "This is a local rule-based review, not an AI audience panel, trained predictive model, or actual Meta Ads result.",
         "visual_review_notice": (
             "The uploaded image was not visually inspected because no AI provider is configured."
             if image_attached and not image_inspected
