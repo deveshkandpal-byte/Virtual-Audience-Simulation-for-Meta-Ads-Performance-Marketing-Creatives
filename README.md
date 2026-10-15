@@ -36,8 +36,8 @@ A compatible AI provider is needed for custom AI-written copy variants and actua
 
 ## Not implemented yet
 
-- Direct video upload or video-frame/audio analysis. Script-only video/UGC checklist guidance is available, but the app does not inspect rendered video, audio, or real retention.
-- A separate uploaded multi-image carousel/card-sequence inspector; carousel guidance is currently checklist-based unless its cards are individually supplied and inspected.
+- Full video/audio understanding, continuous-motion analysis, audio transcription, subtitle verification and actual retention measurement. Video support samples up to eight still frames from the first 30 seconds; audio is not analyzed.
+- Multi-image carousel/card-sequence upload and automated sequence inspection. Carousel review is currently checklist-based because the upload form accepts one media file at a time.
 - Actual virtual human participants, eye-tracking, or measured audience experiments.
 - A predictive model trained and validated on historical Meta Ads campaign data.
 - Visual asset generation or automatic image/video editing.
