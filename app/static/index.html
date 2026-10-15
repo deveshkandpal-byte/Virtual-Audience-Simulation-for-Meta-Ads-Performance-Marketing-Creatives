@@ -35,8 +35,8 @@
         <label for="ad_copy">Primary ad copy / script</label><textarea id="ad_copy" name="ad_copy" placeholder="Paste the ad copy, voice-over script, or concept. For video concepts, include the first 3 seconds, pacing and CTA if known."></textarea>
         <div class="grid2"><div><label for="offer">Offer / product</label><input id="offer" name="offer" placeholder="Only confirmed details"></div><div><label for="destination">Landing page URL / destination</label><input id="destination" name="destination" type="url" placeholder="https://example.com/product"></div></div>
         <label for="audience">Target audience</label><textarea id="audience" name="audience" style="min-height:70px" placeholder="Market, age range, needs, awareness stage, objections…"></textarea>
-        <label for="creative_file">Creative image (optional)</label><input id="creative_file" name="creative_file" type="file" accept="image/jpeg,image/png,image/webp">
-        <div class="help">JPEG, PNG or WebP · maximum 8 MB. Visual inspection requires a configured vision-capable AI provider. Public HTTPS landing-page URLs are fetched for a limited static-text review.</div>
+        <label for="creative_file">Creative image or video (optional)</label><input id="creative_file" name="creative_file" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm">
+        <div class="help">Images: JPEG/PNG/WebP up to 8 MB. Videos: MP4/MOV/WebM up to 25 MB; up to 8 frames from the first 30 seconds are sampled. AI visual interpretation needs a configured vision-capable provider. Audio and continuous motion are not analyzed. Public HTTPS landing pages receive a limited static-text review.</div>
         <button class="btn" id="submitBtn" type="submit">Analyze this creative →</button>
       </form>
     </section>
