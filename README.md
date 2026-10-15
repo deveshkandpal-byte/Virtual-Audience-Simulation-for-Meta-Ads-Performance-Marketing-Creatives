@@ -127,6 +127,20 @@ GitHub Actions also runs the test suite when changes are pushed to `main` or a p
 - File extensions and browser-provided MIME types are not a complete security boundary. Do not expose an unreviewed development instance publicly.
 - Use only substantiated claims, genuine testimonials, and confirmed offers in ad copy.
 
+## Publish a public demo (Render)
+
+This repository includes a `render.yaml` blueprint for a **no-secret demo**. It intentionally does not configure a paid AI API key, so the public demo uses local heuristic analysis and script/copy guidance unless the owner separately configures an AI provider.
+
+1. First change this GitHub repository to **Public** (see the repository's **Settings → General → Danger Zone → Change visibility**).
+2. Sign in to [Render](https://render.com/) and connect your GitHub account.
+3. In Render, choose **New → Blueprint** and select this repository.
+4. Review the service settings from `render.yaml` and create the service.
+5. Wait for the deployment to finish, then open the generated `onrender.com` URL and check `/health`.
+
+Render's free-plan availability, account requirements, and service behavior can change. A free web service may sleep after inactivity. The generated public URL is created by Render; it is not known until you deploy.
+
+**Public-demo safety:** the app includes a simple in-memory per-IP request throttle, but this is not production-grade abuse protection. Do not add a paid AI API key to a public demo without adding authentication, quotas, monitoring, and stronger rate limiting. Do not submit confidential client creatives or sensitive campaign information. The app has not undergone an independent security review.
+
 ## Open-source license
 
 This project is released under the [MIT License](LICENSE). Contributions and issue reports are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
