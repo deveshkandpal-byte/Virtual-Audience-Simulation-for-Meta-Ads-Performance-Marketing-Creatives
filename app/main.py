@@ -239,3 +239,92 @@ async def analyze(
         report["analysis_mode"] = "local_heuristic"
         report["provider_note"] = str(exc)
     return report
+
+
+def heuristic_optimization(data: dict[str, str]) -> dict[str, Any]:
+    """Suggest safer, clearer copy without inventing product claims or offers."""
+    heading = data.get("heading", "").strip()
+    ad_copy = data.get("ad_copy", "").strip()
+    offer = data.get("offer", "").strip()
+    cta = data.get("cta", "").strip()
+    objective = data.get("objective", "Sales").strip() or "Sales"
+    return {
+        "optimized_creative": {
+            "heading": heading if heading else "Add a clear, specific headline based on a verified benefit",
+            "ad_copy": ad_copy if ad_copy else "Add the product or service, its verified benefit, and the reason it is relevant to your audience. Replace this guidance with confirmed details before publishing.",
+            "offer": offer if offer else "Not provided — add only the actual, confirmed offer or product details.",
+            "cta": cta if cta else ("Send Message" if objective.lower() == "whatsapp conversations" else ("Get a Quote" if objective.lower() == "leads" else ("Learn More" if objective.lower() in {"traffic", "awareness", "engagement"} else "Shop Now")) ,
+        },
+        "changes": [
+            {"component": "heading", "reason": "Keep the headline specific and grounded in a benefit that the business can substantiate."},
+            {"component": "ad_copy", "reason": "Make the product, value, and next step clear; use only verified details."},
+            {"component": "offer", "reason": "No price, discount, deadline, guarantee, or product fact is invented by this fallback."},
+            {"component": "cta", "reason": "The suggested CTA is a starting point; confirm it matches the actual destination."},
+        ],
+        "mode": "local_guidance",
+        "notice": "These are conservative copy suggestions, not generated visual assets or a performance guarantee. Review all wording and replace guidance with confirmed facts before publishing.",
+    }
+
+
+@app.post("/api/optimize")
+async def optimize(
+    creative_type: str = Form("Static Image — Ad Copy Review"),
+    heading: str = Form(""),
+    ad_copy: str = Form(""),
+    offer: str = Form(""),
+    cta: str = Form(""),
+    objective: str = Form("Sales"),
+    audience: str = Form(""),
+    destination: str = Form(""),
+) -> dict[str, Any]:
+    data = {
+        "creative_type": creative_type[:300],
+        "heading": heading[:1000],
+        "ad_copy": ad_copy[:12000],
+        "offer": offer[:3000],
+        "cta": cta[:1000],
+        "objective": objective[:300],
+        "audience": audience[:2000],
+        "destination": destination[:2000],
+    }
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        return heuristic_optimization(data)
+
+    system = """You are a careful performance-marketing copy editor. Return only valid JSON with keys optimized_creative (heading, ad_copy, offer, cta strings), changes (array of component and reason strings), mode, notice. Preserve verified facts. Never invent claims, prices, discounts, guarantees, testimonials, deadlines, or results. For missing input, write 'Not provided' or a clear editorial placeholder, never pretend it is a fact. Suggest copy only; do not claim to generate images or videos. State that the result is a hypothesis to review before publishing."""
+    payload = {
+        "creative_type": data["creative_type"],
+        "heading": data["heading"] or "Not provided",
+        "ad_copy": data["ad_copy"] or "Not provided",
+        "offer": data["offer"] or "Not provided",
+        "cta": data["cta"] or "Not provided",
+        "objective": data["objective"],
+        "audience": data["audience"] or "Not provided",
+        "destination": data["destination"] or "Not provided",
+    }
+    body = {
+        "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip(),
+        "temperature": 0.2,
+        "response_format": {"type": "json_object"},
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
+    }
+    req = urllib.request.Request(
+        f"{os.getenv('OPENAI_BASE_URL', 'https://api.openai.com/v1').rstrip('/')}/chat/completions",
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=45) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        parsed = json.loads(result["choices"][0]["message"]["content"])
+        creative = parsed.get("optimized_creative")
+        if not isinstance(creative, dict) or not all(isinstance(creative.get(k), str) for k in ("heading", "ad_copy", "offer", "cta")):
+            raise RuntimeError("AI provider returned an invalid optimized_creative structure.")
+        parsed["mode"] = "configured_ai"
+        parsed["notice"] = "AI-assisted copy suggestions only. Review every claim and confirm the offer before publishing; no performance outcome is guaranteed."
+        return parsed
+    except (urllib.error.URLError, TimeoutError, KeyError, IndexError, json.JSONDecodeError, RuntimeError) as exc:
+        fallback = heuristic_optimization(data)
+        fallback["provider_note"] = f"AI copy optimization was unavailable; local guidance was returned. Details: {exc}"
+        return fallback
