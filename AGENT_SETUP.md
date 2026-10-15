@@ -38,10 +38,10 @@ Replace the example key locally. Never commit keys or paste them into public iss
 
 ## Part B — Install the reusable skill in an AI agent
 
-The portable skill lives at `skills/virtual-audience-simulation/SKILL.md`. It can be read by an AI agent even when the web app is not running. Keep the whole repository available if the agent needs the detailed taxonomy in `docs/CREATIVE_TYPE_LIBRARY.md`.
+The portable skills live at `skills/virtual-audience-simulation/SKILL.md` and `skills/industry-strategy/SKILL.md`. The system prompt and logical agent-role instructions live in `prompts/SYSTEM_PROMPT.md` and `prompts/AGENT_ROLES.md`; the industry playbook and structured library are in `docs/INDUSTRY_STRATEGY_PLAYBOOK.md` and `app/industry_strategies.json`. It can be read by an AI agent even when the web app is not running. Keep the whole repository available if the agent needs the detailed taxonomy in `docs/CREATIVE_TYPE_LIBRARY.md`.
 
 1. Download or clone this repository.
-2. Copy the entire `skills/virtual-audience-simulation` folder into the agent's supported skills directory.
+2. Copy the `skills/virtual-audience-simulation` and `skills/industry-strategy` folders into the agent's supported skills directory. Keep `docs/INDUSTRY_STRATEGY_PLAYBOOK.md`, `docs/CREATIVE_TYPE_LIBRARY.md`, `app/industry_strategies.json` and `prompts/` available as references.
 3. If the agent supports the Agent Skills format, it should recognize `SKILL.md` with YAML frontmatter. If it does not auto-discover skills, ask it to read that file explicitly.
 4. Keep `docs/CREATIVE_TYPE_LIBRARY.md` alongside the skill, or copy its taxonomy into the agent's project knowledge. The skill references it.
 5. Give the agent a creative, objective, audience, offer, CTA, and destination; ask it to follow the skill and return valid JSON.
