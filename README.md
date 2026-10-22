@@ -30,7 +30,7 @@ A beginner-friendly MVP for reviewing Meta (Facebook/Instagram) ad copy and imag
 - [Industry strategy playbook](docs/INDUSTRY_STRATEGY_PLAYBOOK.md) — format, hook, copy, CTA, offer and funnel starting hypotheses by industry.
 - [Structured industry strategy library](app/industry_strategies.json) — used by the app for automatic industry classification and recommendations.
 - [System prompt](prompts/SYSTEM_PROMPT.md) and [logical agent roles](prompts/AGENT_ROLES.md) — the current app runs these roles as one orchestrated model call, not as separate autonomous agents.
-- [Industry-strategy skill](skills/industry-strategy/SKILL.md) and [core simulation skill](skills/virtual-audience-simulation/SKILL.md).
+- [Industry-strategy skill](skills/industry-strategy/SKILL.md), [core simulation skill](skills/virtual-audience-simulation/SKILL.md), and [social content & ad creative skill](skills/social-content-and-ad-creative/SKILL.md).
 
 A compatible AI provider is needed for custom AI-written copy variants and actual image interpretation. Without a key, the app returns industry-based guidance and clearly marked fill-in concept templates, not finished AI-generated creatives.
 
@@ -115,6 +115,7 @@ Replace `your_key_here` with your own secret. Do not paste it into public issues
 
 - [Complete creative types, concepts, and format-specific review criteria](docs/CREATIVE_TYPE_LIBRARY.md)
 - [Portable AI-agent skill](skills/virtual-audience-simulation/SKILL.md)
+- [Social content & ad creative skill](skills/social-content-and-ad-creative/SKILL.md) — playbook-based content calendars, Reels, Stories, carousels, captions, visual direction, and paid-social creative briefs.
 - [Local Windows and AI-agent skill setup guide](AGENT_SETUP.md)
 
 The skill is a reusable instruction file, not a binary plugin. Agent compatibility and skill discovery vary; users may need to copy it into the agent's documented skills directory or explicitly ask the agent to read it. A skill does not itself grant shell, browser, model, or API access.
