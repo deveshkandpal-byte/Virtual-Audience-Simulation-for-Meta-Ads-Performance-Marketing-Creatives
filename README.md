@@ -111,6 +111,12 @@ uvicorn app.main:app --reload
 
 Replace `your_key_here` with your own secret. Do not paste it into public issues, chat messages, or source files. Check your provider's model and image-input support before use. If you do not configure a provider, the app still runs in local heuristic mode.
 
+## Google Antigravity workspace skill
+
+This repository includes a project-scoped Antigravity skill at `.agents/skills/social-content-and-ad-creative/SKILL.md`. Open the repository folder as an Antigravity workspace. If the skill does not appear, restart Antigravity or start a fresh conversation and ask it to use `social-content-and-ad-creative`.
+
+The portable copy is also available at `skills/social-content-and-ad-creative/SKILL.md` for other agents. A skill provides instructions; it does not automatically connect APIs, create creatives, or run the web app by itself.
+
 ## Full creative-type library and AI-agent skill
 
 - [Complete creative types, concepts, and format-specific review criteria](docs/CREATIVE_TYPE_LIBRARY.md)
